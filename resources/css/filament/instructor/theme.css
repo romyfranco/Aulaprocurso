@@ -1,0 +1,9 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/Instructor/**/*';
+@source '../../../../resources/views/filament/instructor/**/*';
+
+.fi-sidebar { background: #134e4a; }
+.fi-sidebar .fi-sidebar-item-label, .fi-sidebar .fi-logo, .fi-sidebar button { color: #ccfbf1; }
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn { background: rgb(20 184 166 / .2); }
+.fi-section, .fi-ta-ctn, .fi-wi-stats-overview-stat { border-radius: 1rem; box-shadow: 0 10px 30px rgb(13 148 136 / .07); }

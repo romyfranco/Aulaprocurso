@@ -1,0 +1,9 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/Student/**/*';
+@source '../../../../resources/views/filament/student/**/*';
+
+.fi-sidebar { background: #1e3a8a; }
+.fi-sidebar .fi-sidebar-item-label, .fi-sidebar .fi-logo, .fi-sidebar button { color: #dbeafe; }
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn { background: rgb(124 58 237 / .22); }
+.fi-section, .fi-ta-ctn, .fi-wi-stats-overview-stat { border-radius: 1rem; box-shadow: 0 10px 30px rgb(37 99 235 / .08); }
