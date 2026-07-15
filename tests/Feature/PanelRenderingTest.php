@@ -18,9 +18,44 @@ class PanelRenderingTest extends TestCase
     public function test_public_and_login_pages_render(): void
     {
         $this->get('/')->assertOk()->assertSee('AulaPro');
-        $this->get('/admin/login')->assertOk();
-        $this->get('/instructor/login')->assertOk();
-        $this->get('/student/login')->assertOk();
+        $this->get('/login')->assertOk()->assertSee('Un solo acceso');
+        $this->get('/admin/login')->assertRedirect('/login');
+        $this->get('/instructor/login')->assertRedirect('/login');
+        $this->get('/student/login')->assertRedirect('/login');
+        $this->get('/admin')->assertRedirect('/login');
+        $this->get('/instructor')->assertRedirect('/login');
+        $this->get('/student')->assertRedirect('/login');
+    }
+
+    public function test_login_redirects_each_role_to_its_panel(): void
+    {
+        foreach (['admin', 'instructor', 'student'] as $role) {
+            $user = User::factory()->create([
+                'email' => $role.'@example.test',
+                'password' => 'password',
+                'role' => $role,
+            ]);
+
+            $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'password',
+            ])->assertRedirect('/'.$role);
+
+            $this->assertAuthenticatedAs($user);
+            auth()->logout();
+        }
+    }
+
+    public function test_login_rejects_invalid_credentials(): void
+    {
+        $user = User::factory()->create(['password' => 'password']);
+
+        $this->from('/login')->post('/login', [
+            'email' => $user->email,
+            'password' => 'incorrecta',
+        ])->assertRedirect('/login')->assertSessionHasErrors('email');
+
+        $this->assertGuest();
     }
 
     public function test_admin_panel_and_resources_render(): void

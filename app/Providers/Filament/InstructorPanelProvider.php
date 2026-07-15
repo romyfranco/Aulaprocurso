@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\AuthenticatePanelUser;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -27,7 +27,6 @@ class InstructorPanelProvider extends PanelProvider
             ->path('instructor')
             ->viteTheme('resources/css/filament/instructor/theme.css')
             ->brandName('AulaPro · Instructor')
-            ->login()
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->colors(['primary' => Color::hex('#0D9488')])
@@ -52,7 +51,7 @@ class InstructorPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticatePanelUser::class,
                 'panel.role:instructor',
             ]);
     }
