@@ -57,11 +57,110 @@ class ServeRevealAssetController extends Controller
         if (in_array($extension, ['html', 'htm'], true)) {
             $html = file_get_contents($filePath);
             abort_unless(is_string($html), 404);
+            $html = $this->inlineCriticalAssets($html, $presentation->storage_path, $relativePath);
 
             return response($this->prepareHtml($html, $token, $relativePath), 200, $headers);
         }
 
         return response()->file($filePath, $headers);
+    }
+
+    private function inlineCriticalAssets(string $html, string $storagePath, string $relativePath): string
+    {
+        $html = preg_replace_callback('/<link\b(?<attributes>[^>]*)>/i', function (array $match) use ($storagePath, $relativePath): string {
+            $attributes = $match['attributes'];
+            $relationship = strtolower($this->htmlAttribute($attributes, 'rel') ?? '');
+            $source = $this->htmlAttribute($attributes, 'href');
+
+            if (! str_contains($relationship, 'stylesheet') || ! $source) {
+                return $match[0];
+            }
+
+            $assetPath = $this->localCriticalAssetPath($source, $storagePath, $relativePath, 'css');
+            if (! $assetPath) {
+                return $match[0];
+            }
+
+            $contents = file_get_contents($assetPath);
+            if (! is_string($contents)) {
+                return $match[0];
+            }
+
+            $label = htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $media = $this->htmlAttribute($attributes, 'media');
+            $mediaAttribute = $media ? ' media="'.htmlspecialchars($media, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'"' : '';
+
+            return '<style'.$mediaAttribute.' data-voranapro-inlined-stylesheet="'.$label.'">'
+                .str_ireplace('</style', '<\/style', $contents)
+                .'</style>';
+        }, $html) ?? $html;
+
+        return preg_replace_callback('/<script\b(?<attributes>[^>]*)>\s*<\/script\s*>/is', function (array $match) use ($storagePath, $relativePath): string {
+            $attributes = $match['attributes'];
+            $source = $this->htmlAttribute($attributes, 'src');
+            if (! $source) {
+                return $match[0];
+            }
+
+            $assetPath = $this->localCriticalAssetPath($source, $storagePath, $relativePath, 'js');
+            if (! $assetPath) {
+                return $match[0];
+            }
+
+            $contents = file_get_contents($assetPath);
+            if (! is_string($contents)) {
+                return $match[0];
+            }
+
+            $type = $this->htmlAttribute($attributes, 'type');
+            $typeAttribute = $type ? ' type="'.htmlspecialchars($type, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'"' : '';
+            $label = htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+            return '<script'.$typeAttribute.' data-voranapro-inlined-script="'.$label.'">'
+                .str_ireplace('</script', '<\/script', $contents)
+                .'</script>';
+        }, $html) ?? $html;
+    }
+
+    private function htmlAttribute(string $attributes, string $name): ?string
+    {
+        $pattern = '/\b'.preg_quote($name, '/').'\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))/i';
+        if (preg_match($pattern, $attributes, $match) !== 1) {
+            return null;
+        }
+
+        $value = $match[1] !== '' ? $match[1] : ($match[2] !== '' ? $match[2] : ($match[3] ?? ''));
+
+        return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    private function localCriticalAssetPath(string $source, string $storagePath, string $relativePath, string $extension): ?string
+    {
+        if (preg_match('#^(?:[a-z][a-z0-9+.-]*:|//|/|\\\\)#i', $source) === 1) {
+            return null;
+        }
+
+        $sourcePath = parse_url($source, PHP_URL_PATH);
+        if (! is_string($sourcePath) || $sourcePath === '') {
+            return null;
+        }
+
+        $sourcePath = str_replace('\\', '/', rawurldecode($sourcePath));
+        if (strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION)) !== $extension) {
+            return null;
+        }
+
+        $directory = dirname($relativePath);
+        $candidate = ($directory === '.' ? '' : trim(str_replace('\\', '/', $directory), '/').'/').$sourcePath;
+        $disk = Storage::disk(config('reveal.disk'));
+        $basePath = realpath($disk->path($storagePath));
+        $assetPath = realpath($disk->path($storagePath.'/'.$candidate));
+
+        if (! $basePath || ! $assetPath || ! is_file($assetPath) || ! str_starts_with($assetPath, $basePath.DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+
+        return filesize($assetPath) <= 5 * 1024 * 1024 ? $assetPath : null;
     }
 
     private function prepareHtml(string $html, string $token, string $relativePath): string
