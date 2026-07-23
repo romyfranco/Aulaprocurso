@@ -27,6 +27,8 @@ class QuizResource extends Resource
 
     protected static ?string $modelLabel = 'evaluación';
 
+    protected static ?string $pluralModelLabel = 'evaluaciones';
+
     protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Schema $schema): Schema

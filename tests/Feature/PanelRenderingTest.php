@@ -83,6 +83,33 @@ class PanelRenderingTest extends TestCase
         $this->actingAs($instructor)->get('/student')->assertForbidden();
     }
 
+    public function test_student_sees_pending_evaluation_navigation(): void
+    {
+        Storage::fake('public');
+        $this->seed();
+        $student = User::where('role', 'student')->firstOrFail();
+
+        $this->actingAs($student)->get('/student')
+            ->assertOk()
+            ->assertSee('Evaluaciones pendientes')
+            ->assertSee('/student/quizzes', false)
+            ->assertSee('/student/enrollments', false)
+            ->assertSee('/student/certificates', false);
+
+        $this->actingAs($student)->get('/student/quizzes')
+            ->assertOk()
+            ->assertSee('Evaluaciones')
+            ->assertDontSee('Evaluacións');
+
+        $this->actingAs($student)->get('/student/enrollments/1')
+            ->assertOk()
+            ->assertSeeText('Ver mis evaluaciones pendientes');
+
+        $this->actingAs($student)->get('/student/enrollments/2')
+            ->assertOk()
+            ->assertSeeText('No tienes evaluaciones pendientes');
+    }
+
     public function test_detail_cards_render_with_real_demo_data(): void
     {
         Storage::fake('public');
