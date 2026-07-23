@@ -72,10 +72,11 @@
                 }, { threshold: 0.01 });
                 observer.observe(frame);
                 setTimeout(notify, 750);
-                $cleanup(() => {
+                $el._voranaproRevealCleanup?.();
+                $el._voranaproRevealCleanup = () => {
                     window.removeEventListener('message', onMessage);
                     observer.disconnect();
-                });
+                };
             "
             style="position:relative;width:100%;aspect-ratio:16/9;min-height:420px;max-height:75vh;overflow:hidden;border:1px solid #dbe3ef;border-radius:1rem;background:#0f172a"
         >
