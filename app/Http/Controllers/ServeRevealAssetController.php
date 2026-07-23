@@ -177,6 +177,78 @@ HTML;
             link.addEventListener('error', () => resolve(false), { once: true });
         }), 60000);
     };
+    const nextFrame = () => new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
+    const stylesheetContainsRules = link => {
+        if (!link.sheet) return false;
+        try {
+            return new URL(link.href, document.baseURI).origin !== window.location.origin
+                || link.sheet.cssRules.length > 0;
+        } catch (error) {
+            return true;
+        }
+    };
+    const revealStylesAreApplied = () => {
+        const root = document.querySelector('.reveal');
+        const slides = root?.querySelector('.slides');
+        if (!root || !slides || root.clientWidth < 1 || root.clientHeight < 1) return false;
+
+        const rootStyle = window.getComputedStyle(root);
+        const slidesStyle = window.getComputedStyle(slides);
+
+        return rootStyle.position === 'relative'
+            && rootStyle.overflowX === 'hidden'
+            && slidesStyle.position === 'absolute';
+    };
+    const reloadStylesheet = (link, attempt) => withTimeout(new Promise(resolve => {
+        const replacement = link.cloneNode(true);
+        const url = new URL(link.href, document.baseURI);
+        url.searchParams.set('voranapro_css_retry', String(attempt));
+        replacement.href = url.href;
+        replacement.addEventListener('load', () => {
+            link.remove();
+            resolve(true);
+        }, { once: true });
+        replacement.addEventListener('error', () => {
+            replacement.remove();
+            resolve(false);
+        }, { once: true });
+        link.after(replacement);
+    }), 60000);
+    const ensureRevealStyles = async () => {
+        let stylesheets = [...document.querySelectorAll('link[rel="stylesheet"]')];
+        const initialResults = await Promise.all(stylesheets.map(waitForStylesheet));
+        await nextFrame();
+        if (initialResults.every(Boolean) && stylesheets.every(stylesheetContainsRules) && revealStylesAreApplied()) return true;
+
+        for (let attempt = 1; attempt <= 2; attempt += 1) {
+            setProgress(48 + attempt * 3, 'Recuperando estilos de la presentación…');
+            const reloadResults = await Promise.all(stylesheets.map(link => reloadStylesheet(link, attempt)));
+            stylesheets = [...document.querySelectorAll('link[rel="stylesheet"]')];
+            if (reloadResults.some(result => result !== true)) continue;
+            await nextFrame();
+            if (stylesheets.every(stylesheetContainsRules) && revealStylesAreApplied()) return true;
+        }
+
+        return false;
+    };
+    const revealGeometryIsValid = () => {
+        if (!revealStylesAreApplied()) return false;
+        const root = document.querySelector('.reveal');
+        const currentSlide = root?.querySelector('.slides section.present')
+            || root?.querySelector('.slides section');
+        if (!root || !currentSlide) return false;
+
+        const rootRect = root.getBoundingClientRect();
+        const slideRect = currentSlide.getBoundingClientRect();
+        if (rootRect.width < 1 || rootRect.height < 1 || slideRect.width < 1 || slideRect.height < 1) return false;
+
+        const viewportCoverage = Math.max(
+            slideRect.width / rootRect.width,
+            slideRect.height / rootRect.height,
+        );
+
+        return viewportCoverage >= 0.72 && viewportCoverage <= 1.08;
+    };
     const layout = () => {
         if (window.Reveal && typeof window.Reveal.layout === 'function') {
             window.Reveal.layout();
@@ -186,6 +258,30 @@ HTML;
         window.requestAnimationFrame(layout);
         window.setTimeout(layout, 150);
         window.setTimeout(layout, 600);
+    };
+    const stabilizeLayout = async () => {
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+            if (typeof window.Reveal.sync === 'function') window.Reveal.sync();
+            window.Reveal.layout();
+            await nextFrame();
+            await new Promise(resolve => window.setTimeout(resolve, 140 + attempt * 80));
+            if (revealGeometryIsValid()) return true;
+        }
+
+        return false;
+    };
+    const waitUntilFrameIsVisible = () => {
+        if (window.parent === window) return Promise.resolve(true);
+
+        return withTimeout(new Promise(resolve => {
+            const onMessage = event => {
+                if (event.origin !== parentOrigin || event.data !== 'voranapro:reveal-visible') return;
+                window.removeEventListener('message', onMessage);
+                resolve(true);
+            };
+            window.addEventListener('message', onMessage);
+            post('voranapro:reveal-prepared', { progress: 97 });
+        }), 15000);
     };
     window.addEventListener('load', refresh, { once: true });
     window.addEventListener('resize', refresh);
@@ -215,8 +311,8 @@ HTML;
             if (!revealReady) throw new Error('La presentación tardó demasiado en inicializarse.');
 
             setProgress(46, 'Verificando estilos…');
-            const stylesheetResults = await Promise.all([...document.querySelectorAll('link[rel="stylesheet"]')].map(waitForStylesheet));
-            if (stylesheetResults.some(result => result !== true)) throw new Error('No se pudieron cargar todos los estilos.');
+            const stylesReady = await ensureRevealStyles();
+            if (!stylesReady) throw new Error('Los estilos de Reveal.js no se aplicaron correctamente.');
 
             setProgress(58, 'Preparando tipografías…');
             if (document.fonts?.ready) {
@@ -262,8 +358,9 @@ HTML;
             }
 
             setProgress(96, 'Ajustando la presentación…');
-            refresh();
-            await new Promise(resolve => window.setTimeout(resolve, 350));
+            await waitUntilFrameIsVisible();
+            const geometryReady = await stabilizeLayout();
+            if (!geometryReady) throw new Error('No se pudo ajustar la presentación al visor.');
             document.documentElement.classList.add('voranapro-reveal-ready');
             setProgress(100, 'Presentación lista');
             post('voranapro:reveal-ready', { progress: 100 });

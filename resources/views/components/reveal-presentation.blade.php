@@ -36,7 +36,7 @@
         <div
             id="reveal-presentation-{{ $topic->getKey() }}"
             data-reveal-origin="{{ rtrim(config('reveal.url'), '/') }}"
-            x-data="{ revealReady: false, revealFailed: false, revealProgress: 4, revealStatus: 'Conectando con la presentación…' }"
+            x-data="{ revealPrepared: false, revealReady: false, revealFailed: false, revealProgress: 4, revealStatus: 'Conectando con la presentación…' }"
             x-init="
                 const frame = $refs.presentation;
                 const origin = $el.dataset.revealOrigin;
@@ -46,6 +46,14 @@
                     if (event.data.type === 'voranapro:reveal-progress') {
                         revealProgress = Math.max(revealProgress, event.data.progress || 4);
                         revealStatus = event.data.status || revealStatus;
+                    }
+                    if (event.data.type === 'voranapro:reveal-prepared') {
+                        revealPrepared = true;
+                        revealProgress = Math.max(revealProgress, 97);
+                        revealStatus = 'Ajustando al tamaño del visor…';
+                        requestAnimationFrame(() => requestAnimationFrame(() => {
+                            frame.contentWindow?.postMessage('voranapro:reveal-visible', origin);
+                        }));
                     }
                     if (event.data.type === 'voranapro:reveal-ready') {
                         revealProgress = 100;
@@ -93,7 +101,7 @@
                     <button
                         x-show="revealFailed"
                         type="button"
-                        @click="revealFailed = false; revealReady = false; revealProgress = 4; revealStatus = 'Reintentando…'; $refs.presentation.src = $refs.presentation.src"
+                        @click="revealFailed = false; revealPrepared = false; revealReady = false; revealProgress = 4; revealStatus = 'Reintentando…'; $refs.presentation.src = $refs.presentation.src"
                         style="margin:1rem auto 0;border:0;border-radius:.7rem;padding:.65rem 1rem;background:#6757f5;color:white;font-weight:750;cursor:pointer"
                     >
                         Reintentar
@@ -111,7 +119,7 @@
                 allowfullscreen
                 referrerpolicy="no-referrer"
                 :aria-hidden="(! revealReady).toString()"
-                :style="revealReady ? 'opacity:1;visibility:visible' : 'opacity:0;visibility:hidden'"
+                :style="revealReady ? 'opacity:1;visibility:visible' : (revealPrepared ? 'opacity:0;visibility:visible' : 'opacity:0;visibility:hidden')"
                 style="position:absolute;inset:0;display:block;width:100%;height:100%;border:0;opacity:0;visibility:hidden;transition:opacity .35s ease"
             ></iframe>
         </div>

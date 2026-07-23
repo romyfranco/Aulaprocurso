@@ -225,6 +225,10 @@ class RevealPresentationTest extends TestCase
         $asset->assertSee('data-voranapro-reveal-bridge', false);
         $asset->assertSee('id="voranapro-reveal-loader"', false);
         $asset->assertSee('voranapro:reveal-progress', false);
+        $asset->assertSee('voranapro:reveal-prepared', false);
+        $asset->assertSee('voranapro:reveal-visible', false);
+        $asset->assertSee('revealStylesAreApplied', false);
+        $asset->assertSee('stabilizeLayout', false);
         $asset->assertSee('voranapro:reveal-ready', false);
         $asset->assertSee('voranapro:reveal-layout', false);
 
