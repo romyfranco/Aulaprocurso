@@ -231,6 +231,57 @@ HTML;
 
         return false;
     };
+    const reloadScript = (script, attempt) => withTimeout(new Promise(resolve => {
+        const replacement = document.createElement('script');
+        [...script.attributes].forEach(attribute => {
+            if (attribute.name !== 'src') replacement.setAttribute(attribute.name, attribute.value);
+        });
+        const url = new URL(script.src, document.baseURI);
+        url.searchParams.set('voranapro_script_retry', String(attempt));
+        replacement.src = url.href;
+        replacement.async = false;
+        replacement.addEventListener('load', () => resolve(true), { once: true });
+        replacement.addEventListener('error', () => {
+            replacement.remove();
+            resolve(false);
+        }, { once: true });
+        document.head.appendChild(replacement);
+    }), 60000);
+    const runRevealInitializer = async () => {
+        if (!window.Reveal || (typeof window.Reveal.isReady === 'function' && window.Reveal.isReady())) return true;
+
+        const initializer = [...document.querySelectorAll('script:not([src])')]
+            .find(script => /(?:window\.)?Reveal\.initialize\s*\(/.test(script.textContent || ''));
+        if (!initializer) return false;
+
+        try {
+            const result = Function(initializer.textContent || '').call(window);
+            if (result && typeof result.then === 'function') await result;
+            return true;
+        } catch (error) {
+            return false;
+        }
+    };
+    const ensureRevealRuntime = async () => {
+        let available = await waitUntil(() => window.Reveal && typeof window.Reveal.layout === 'function', 12000);
+
+        if (!available) {
+            const scripts = [...document.querySelectorAll('script[src]')];
+            for (let attempt = 1; attempt <= 2 && !available; attempt += 1) {
+                setProgress(30 + attempt * 4, 'Recuperando el motor de la presentación…');
+                for (const script of scripts) {
+                    await reloadScript(script, attempt);
+                    if (window.Reveal && typeof window.Reveal.layout === 'function') break;
+                }
+                available = Boolean(window.Reveal && typeof window.Reveal.layout === 'function');
+            }
+        }
+
+        if (!available) return false;
+        await runRevealInitializer();
+
+        return waitUntil(() => typeof window.Reveal.isReady === 'function' && window.Reveal.isReady(), 60000);
+    };
     const revealGeometryIsValid = () => {
         if (!revealStylesAreApplied()) return false;
         const root = document.querySelector('.reveal');
@@ -304,10 +355,7 @@ HTML;
             }
 
             setProgress(28, 'Iniciando Reveal.js…');
-            const revealAvailable = await waitUntil(() => window.Reveal && typeof window.Reveal.layout === 'function');
-            if (!revealAvailable) throw new Error('Reveal.js no pudo iniciarse.');
-
-            const revealReady = await waitUntil(() => typeof window.Reveal.isReady === 'function' && window.Reveal.isReady());
+            const revealReady = await ensureRevealRuntime();
             if (!revealReady) throw new Error('La presentación tardó demasiado en inicializarse.');
 
             setProgress(46, 'Verificando estilos…');
