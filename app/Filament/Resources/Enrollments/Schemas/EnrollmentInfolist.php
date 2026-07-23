@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Enrollments\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -23,6 +24,16 @@ class EnrollmentInfolist
                 TextEntry::make('enrolled_at')->label('Matrícula')->dateTime('d M Y'),
                 TextEntry::make('completed_at')->label('Finalización')->dateTime('d M Y')->placeholder('En curso'),
             ])->columns(3),
+            Section::make('Temas del curso')
+                ->icon('heroicon-o-list-bullet')
+                ->visible(fn (): bool => auth()->user()?->role === 'student')
+                ->schema([
+                    ViewEntry::make('course_topics')
+                        ->label('')
+                        ->view('filament.infolists.enrollment-topics')
+                        ->viewData(fn ($record): array => ['enrollment' => $record])
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 }
