@@ -38,7 +38,7 @@ class TopicInfolist
                 TextEntry::make('creator.name')->label('Autor'),
                 TextEntry::make('created_at')->label('Creado')->dateTime('d M Y, H:i'),
                 TextEntry::make('updated_at')->label('Actualizado')->dateTime('d M Y, H:i'),
-            ])->columns(3),
+            ])->columns(3)->visible(fn (): bool => auth()->user()?->role === 'admin'),
         ]);
     }
 }

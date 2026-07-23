@@ -21,7 +21,7 @@ class QuizAttemptsTable
             TextColumn::make('quiz.title')->label('Evaluación')->searchable(),
             TextColumn::make('attempt_number')->label('Intento')->badge()->color('warning'),
             TextColumn::make('score')->label('Puntaje')->suffix('%')->placeholder('Pendiente')->badge()->color('primary'),
-            TextColumn::make('status')->label('Estado')->badge()->color(fn ($state) => $state === 'graded' ? 'success' : ($state === 'pending_grading' ? 'danger' : 'gray')),
+            TextColumn::make('status')->label('Estado')->badge()->sortable()->color(fn ($state) => $state === 'graded' ? 'success' : ($state === 'pending_grading' ? 'danger' : 'gray')),
             TextColumn::make('submitted_at')->label('Entregado')->since()->sortable(),
         ])->recordActions([
             ViewAction::make(),

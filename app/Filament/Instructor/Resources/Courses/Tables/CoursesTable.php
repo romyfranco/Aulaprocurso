@@ -16,24 +16,29 @@ class CoursesTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
-                TextColumn::make('thumbnail')
-                    ->searchable(),
-                TextColumn::make('status')
-                    ->searchable(),
-                TextColumn::make('estimated_duration_hours')
-                    ->numeric()
+                    ->label('Curso')
+                    ->icon('heroicon-o-academic-cap')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('created_by')
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'published' => 'success', 'archived' => 'gray', default => 'warning'
+                    })
+                    ->sortable(),
+                TextColumn::make('estimated_duration_hours')
+                    ->label('Duración')
+                    ->suffix(' h')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Creado')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizado')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

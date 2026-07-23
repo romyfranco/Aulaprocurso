@@ -16,20 +16,28 @@ class EnrollmentsTable
         return $table
             ->columns([
                 TextColumn::make('student.name')
+                    ->label('Estudiante')
+                    ->icon('heroicon-o-user')
                     ->searchable(),
                 TextColumn::make('course.title')
-                    ->searchable(),
-                TextColumn::make('enrolled_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('completed_at')
-                    ->dateTime()
+                    ->label('Curso')
+                    ->icon('heroicon-o-academic-cap')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('progress_percentage')
+                    ->label('Progreso')
+                    ->suffix('%')
+                    ->badge()
+                    ->color(fn ($state) => $state >= 100 ? 'success' : ($state < 40 ? 'danger' : 'primary'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->searchable(),
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'completed' => 'success', 'dropped' => 'danger', default => 'info'
+                    })
+                    ->sortable(),
             ])
             ->filters([
                 //

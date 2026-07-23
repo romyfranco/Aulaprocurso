@@ -36,7 +36,7 @@ class QuizInfolist
                 TextEntry::make('created_at')->label('Creado')->dateTime('d M Y, H:i'),
                 TextEntry::make('updated_at')->label('Actualizado')->dateTime('d M Y, H:i'),
                 TextEntry::make('questions_count')->label('Total de preguntas')->state(fn ($record) => $record->questions()->count())->badge(),
-            ])->columns(3),
+            ])->columns(3)->visible(fn (): bool => auth()->user()?->role === 'admin'),
         ]);
     }
 }
