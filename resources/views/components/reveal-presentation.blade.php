@@ -27,7 +27,7 @@
             <iframe
                 src="{{ $launchUrl }}"
                 title="Presentación: {{ $topic->title }}"
-                loading="lazy"
+                loading="eager"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
                 allow="fullscreen"
                 allowfullscreen
