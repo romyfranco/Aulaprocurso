@@ -219,7 +219,9 @@ class RevealPresentationTest extends TestCase
             ->assertHeader('Referrer-Policy', 'no-referrer')
             ->assertHeader('Content-Security-Policy')
             ->assertHeaderMissing('Set-Cookie');
-        $this->assertStringContainsString('<div class="reveal">', $asset->baseResponse->getFile()->getContent());
+        $asset->assertSee('<div class="reveal">', false);
+        $asset->assertSee('<base href="http://slides.example.test/p/'.$token.'/">', false);
+        $asset->assertSee('data-voranapro-reveal-bridge', false);
 
         $this->withHeader('Range', 'bytes=0-3')
             ->get('http://slides.example.test/p/'.$token.'/media/sample.mp4')

@@ -44,7 +44,9 @@ class ServeRevealAssetController extends Controller
         $headers = [
             'Content-Type' => $mimeType,
             'Content-Disposition' => 'inline; filename="'.addslashes(basename($filePath)).'"',
-            'Cache-Control' => 'private, max-age=3600',
+            'Cache-Control' => in_array($extension, ['html', 'htm'], true)
+                ? 'private, no-store'
+                : 'private, max-age=3600',
             'X-Content-Type-Options' => 'nosniff',
             'Referrer-Policy' => 'no-referrer',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
@@ -52,7 +54,61 @@ class ServeRevealAssetController extends Controller
             'Content-Security-Policy' => $this->contentSecurityPolicy(),
         ];
 
+        if (in_array($extension, ['html', 'htm'], true)) {
+            $html = file_get_contents($filePath);
+            abort_unless(is_string($html), 404);
+
+            return response($this->prepareHtml($html, $token, $relativePath), 200, $headers);
+        }
+
         return response()->file($filePath, $headers);
+    }
+
+    private function prepareHtml(string $html, string $token, string $relativePath): string
+    {
+        $directory = dirname($relativePath);
+        $directory = $directory === '.' ? '' : trim(str_replace('\\', '/', $directory), '/').'/';
+        $baseUrl = rtrim(config('reveal.url'), '/').'/p/'.$token.'/'.$directory;
+        $baseTag = '<base href="'.htmlspecialchars($baseUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'">';
+
+        if (preg_match('/<head\b[^>]*>/i', $html, $head, PREG_OFFSET_CAPTURE) === 1) {
+            $offset = $head[0][1] + strlen($head[0][0]);
+            $html = substr($html, 0, $offset)."\n    {$baseTag}".substr($html, $offset);
+        } else {
+            $html = $baseTag."\n".$html;
+        }
+
+        $bridge = <<<'HTML'
+<script data-voranapro-reveal-bridge>
+(() => {
+    const layout = () => {
+        if (window.Reveal && typeof window.Reveal.layout === 'function') {
+            window.Reveal.layout();
+        }
+    };
+    const refresh = () => {
+        window.requestAnimationFrame(layout);
+        window.setTimeout(layout, 150);
+        window.setTimeout(layout, 600);
+    };
+    window.addEventListener('load', refresh, { once: true });
+    window.addEventListener('resize', refresh);
+    window.addEventListener('pageshow', refresh);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) refresh();
+    });
+    refresh();
+})();
+</script>
+HTML;
+
+        if (preg_match('/<\/body\s*>/i', $html, $body, PREG_OFFSET_CAPTURE) === 1) {
+            $offset = $body[0][1];
+
+            return substr($html, 0, $offset).$bridge."\n".substr($html, $offset);
+        }
+
+        return $html."\n".$bridge;
     }
 
     private function normalizeRequestedPath(string $path): string
