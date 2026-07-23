@@ -289,7 +289,7 @@ HTML;
     const revealStylesAreApplied = () => {
         const root = document.querySelector('.reveal');
         const slides = root?.querySelector('.slides');
-        if (!root || !slides || root.clientWidth < 1 || root.clientHeight < 1) return false;
+        if (!root || !slides) return false;
 
         const rootStyle = window.getComputedStyle(root);
         const slidesStyle = window.getComputedStyle(slides);
