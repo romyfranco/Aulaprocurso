@@ -230,6 +230,7 @@ class RevealPresentationTest extends TestCase
         $asset->assertSee('revealStylesAreApplied', false);
         $asset->assertSee('ensureRevealRuntime', false);
         $asset->assertSee('voranapro_script_retry', false);
+        $asset->assertSee('motor y sus complementos', false);
         $asset->assertSee('stabilizeLayout', false);
         $asset->assertSee('voranapro:reveal-ready', false);
         $asset->assertSee('voranapro:reveal-layout', false);

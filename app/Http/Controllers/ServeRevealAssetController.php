@@ -264,23 +264,27 @@ HTML;
     };
     const ensureRevealRuntime = async () => {
         let available = await waitUntil(() => window.Reveal && typeof window.Reveal.layout === 'function', 12000);
-
-        if (!available) {
-            const scripts = [...document.querySelectorAll('script[src]')];
-            for (let attempt = 1; attempt <= 2 && !available; attempt += 1) {
-                setProgress(30 + attempt * 4, 'Recuperando el motor de la presentación…');
-                for (const script of scripts) {
-                    await reloadScript(script, attempt);
-                    if (window.Reveal && typeof window.Reveal.layout === 'function') break;
-                }
-                available = Boolean(window.Reveal && typeof window.Reveal.layout === 'function');
-            }
+        if (available) {
+            const initiallyReady = await waitUntil(() => typeof window.Reveal.isReady === 'function' && window.Reveal.isReady(), 5000);
+            if (initiallyReady) return true;
         }
 
-        if (!available) return false;
-        await runRevealInitializer();
+        const scripts = [...document.querySelectorAll('script[src]')];
+        for (let attempt = 1; attempt <= 2; attempt += 1) {
+            setProgress(30 + attempt * 4, 'Recuperando el motor y sus complementos…');
+            for (const script of scripts) await reloadScript(script, attempt);
 
-        return waitUntil(() => typeof window.Reveal.isReady === 'function' && window.Reveal.isReady(), 60000);
+            available = Boolean(window.Reveal && typeof window.Reveal.layout === 'function');
+            if (!available) continue;
+
+            const initializerStarted = await runRevealInitializer();
+            if (!initializerStarted) continue;
+
+            const ready = await waitUntil(() => typeof window.Reveal.isReady === 'function' && window.Reveal.isReady(), 30000);
+            if (ready) return true;
+        }
+
+        return false;
     };
     const revealGeometryIsValid = () => {
         if (!revealStylesAreApplied()) return false;
