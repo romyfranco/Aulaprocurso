@@ -223,6 +223,9 @@ class RevealPresentationTest extends TestCase
         $asset->assertSee('<div class="reveal">', false);
         $asset->assertSee('<base href="http://slides.example.test/p/'.$token.'/">', false);
         $asset->assertSee('data-voranapro-reveal-bridge', false);
+        $asset->assertSee('id="voranapro-reveal-loader"', false);
+        $asset->assertSee('voranapro:reveal-progress', false);
+        $asset->assertSee('voranapro:reveal-ready', false);
         $asset->assertSee('voranapro:reveal-layout', false);
 
         $this->withHeader('Range', 'bytes=0-3')
@@ -300,6 +303,8 @@ class RevealPresentationTest extends TestCase
             ->get('/student/topics/'.$firstTopic->id)
             ->assertOk()
             ->assertSee('Abrir en otra pestaña')
+            ->assertSee('Preparando la presentación')
+            ->assertSee('Reintentar')
             ->assertSee('position:absolute;inset:0', false);
 
         $this->actingAs($scenario['student'])
