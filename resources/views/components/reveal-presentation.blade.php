@@ -37,7 +37,7 @@
                 observer.observe(frame);
                 setTimeout(notify, 750);
             "
-            style="width:100%;aspect-ratio:16/9;min-height:420px;max-height:75vh;overflow:hidden;border:1px solid #dbe3ef;border-radius:1rem;background:#0f172a"
+            style="position:relative;width:100%;aspect-ratio:16/9;min-height:420px;max-height:75vh;overflow:hidden;border:1px solid #dbe3ef;border-radius:1rem;background:#0f172a"
         >
             <iframe
                 x-ref="presentation"
@@ -48,7 +48,7 @@
                 allow="fullscreen"
                 allowfullscreen
                 referrerpolicy="no-referrer"
-                style="width:100%;height:100%;border:0"
+                style="position:absolute;inset:0;display:block;width:100%;height:100%;border:0"
             ></iframe>
         </div>
 

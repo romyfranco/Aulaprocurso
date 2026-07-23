@@ -298,7 +298,8 @@ class RevealPresentationTest extends TestCase
         $this->actingAs($scenario['student'])
             ->get('/student/topics/'.$firstTopic->id)
             ->assertOk()
-            ->assertSee('Abrir en otra pestaña');
+            ->assertSee('Abrir en otra pestaña')
+            ->assertSee('position:absolute;inset:0', false);
 
         $this->actingAs($scenario['student'])
             ->get('/student/topics/'.$secondTopic->id)
