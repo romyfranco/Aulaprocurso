@@ -317,6 +317,7 @@ HTML;
         let stylesheets = [...document.querySelectorAll('link[rel="stylesheet"]')];
         const initialResults = await Promise.all(stylesheets.map(waitForStylesheet));
         await nextFrame();
+        if (document.querySelector('[data-voranapro-inlined-stylesheet]')) return true;
         if (initialResults.every(Boolean) && stylesheets.every(stylesheetContainsRules) && revealStylesAreApplied()) return true;
 
         for (let attempt = 1; attempt <= 2; attempt += 1) {
