@@ -13,6 +13,7 @@ use App\Models\Topic;
 use App\Models\User;
 use App\Services\RevealArchiveExtractor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -316,6 +317,34 @@ class RevealPresentationTest extends TestCase
         $this->actingAs($outsider)
             ->get(route('topics.presentation.launch', $topic))
             ->assertForbidden();
+    }
+
+    public function test_topic_media_is_visible_and_servable_from_the_public_disk(): void
+    {
+        Storage::fake('public');
+        $scenario = $this->scenario();
+        $topic = $scenario['topics'][0];
+
+        $image = $topic->addMedia(UploadedFile::fake()->image('sistema-frenado.jpg', 320, 180))
+            ->toMediaCollection('images');
+        $document = $topic->addMedia(UploadedFile::fake()->createWithContent('manual.pdf', "%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF"))
+            ->toMediaCollection('documents');
+
+        $this->actingAs($scenario['student'])
+            ->get('/student/topics/'.$topic->id)
+            ->assertOk()
+            ->assertSee('Recursos del tema')
+            ->assertSee('sistema-frenado')
+            ->assertSee('manual');
+
+        $this->get(parse_url($image->getUrl(), PHP_URL_PATH))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/jpeg')
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+
+        $this->get(parse_url($document->getUrl(), PHP_URL_PATH))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
     }
 
     private function scenario(): array

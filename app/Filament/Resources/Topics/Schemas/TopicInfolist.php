@@ -20,6 +20,13 @@ class TopicInfolist
             Section::make('Contenido')->icon('heroicon-o-document-text')->schema([
                 TextEntry::make('content')->label('')->html()->prose()->columnSpanFull(),
             ]),
+            Section::make('Recursos del tema')->icon('heroicon-o-paper-clip')->schema([
+                ViewEntry::make('media_resources')
+                    ->label('')
+                    ->view('filament.infolists.topic-media')
+                    ->viewData(fn ($record): array => ['topic' => $record])
+                    ->columnSpanFull(),
+            ])->visible(fn ($record): bool => $record->media()->exists()),
             Section::make('Presentación interactiva')->icon('heroicon-o-presentation-chart-bar')->schema([
                 ViewEntry::make('reveal_presentation')
                     ->label('')
