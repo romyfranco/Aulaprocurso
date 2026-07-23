@@ -34,7 +34,8 @@ class LaunchRevealPresentationController extends Controller
         abort_unless($presentation?->isReady(), 404, 'Este tema no tiene una presentación disponible.');
 
         $token = $access->issue($user, $presentation);
-        $url = rtrim(config('reveal.url'), '/').'/p/'.$token.'/';
+        $entryPath = implode('/', array_map('rawurlencode', explode('/', $presentation->entry_path)));
+        $url = rtrim(config('reveal.url'), '/').'/p/'.$token.'/'.$entryPath;
 
         return redirect()->away($url);
     }
