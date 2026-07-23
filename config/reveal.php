@@ -9,6 +9,7 @@ return [
     'archive_max_bytes' => (int) env('REVEAL_ARCHIVE_MAX_BYTES', 100 * 1024 * 1024),
     'extracted_max_bytes' => (int) env('REVEAL_EXTRACTED_MAX_BYTES', 300 * 1024 * 1024),
     'max_files' => (int) env('REVEAL_MAX_FILES', 5000),
+    'rate_limit_per_minute' => (int) env('REVEAL_RATE_LIMIT_PER_MINUTE', 6000),
     'token_ttl_minutes' => (int) env('REVEAL_TOKEN_TTL_MINUTES', 120),
 
     'allowed_extensions' => [
