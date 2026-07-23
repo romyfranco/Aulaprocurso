@@ -222,6 +222,7 @@ class RevealPresentationTest extends TestCase
         $asset->assertSee('<div class="reveal">', false);
         $asset->assertSee('<base href="http://slides.example.test/p/'.$token.'/">', false);
         $asset->assertSee('data-voranapro-reveal-bridge', false);
+        $asset->assertSee('voranapro:reveal-layout', false);
 
         $this->withHeader('Range', 'bytes=0-3')
             ->get('http://slides.example.test/p/'.$token.'/media/sample.mp4')
