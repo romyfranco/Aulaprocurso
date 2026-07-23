@@ -1,4 +1,4 @@
-# AulaPro
+# VoranaPro
 
 Plataforma educativa construida desde el esquema `plataforma_educacion_schema_FINAL.json`. Incluye tres experiencias independientes en Filament 5.6 sobre Laravel 12:
 
@@ -46,9 +46,9 @@ Todos usan la contraseña `demo12345`.
 
 | Panel | Correo |
 |---|---|
-| Administración | `admin@aulapro.test` |
-| Instructor | `instructor@aulapro.test` |
-| Estudiante | `estudiante@aulapro.test` |
+| Administración | `admin@voranapro.test` |
+| Instructor | `instructor@voranapro.test` |
+| Estudiante | `estudiante@voranapro.test` |
 
 ## Verificación
 

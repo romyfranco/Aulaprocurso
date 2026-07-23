@@ -19,9 +19,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $password = Hash::make('demo12345');
-        $admin = User::create(['name' => 'Laura Administradora', 'email' => 'admin@aulapro.test', 'password' => $password, 'role' => 'admin', 'bio' => 'Responsable de la operación académica.']);
-        $instructor = User::create(['name' => 'Carlos Mendoza', 'email' => 'instructor@aulapro.test', 'password' => $password, 'role' => 'instructor', 'bio' => 'Facilitador en liderazgo y comunicación.']);
-        $student = User::create(['name' => 'Sofía Ramírez', 'email' => 'estudiante@aulapro.test', 'password' => $password, 'role' => 'student']);
+        $admin = User::create(['name' => 'Laura Administradora', 'email' => 'admin@voranapro.test', 'password' => $password, 'role' => 'admin', 'bio' => 'Responsable de la operación académica.']);
+        $instructor = User::create(['name' => 'Carlos Mendoza', 'email' => 'instructor@voranapro.test', 'password' => $password, 'role' => 'instructor', 'bio' => 'Facilitador en liderazgo y comunicación.']);
+        $student = User::create(['name' => 'Sofía Ramírez', 'email' => 'estudiante@voranapro.test', 'password' => $password, 'role' => 'student']);
 
         $course = Course::create(['title' => 'Liderazgo de equipos', 'slug' => 'liderazgo-de-equipos', 'description' => 'Desarrolla habilidades prácticas para guiar equipos, dar retroalimentación y tomar decisiones con claridad.', 'status' => 'published', 'estimated_duration_hours' => 12, 'created_by' => $admin->id]);
         $course->instructors()->attach($instructor->id, ['assigned_at' => now()]);

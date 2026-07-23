@@ -1,0 +1,140 @@
+{
+  "meta": {
+    "name": "VoranaPro Learning OS",
+    "description": "Identidad educativa premium, tecnológica y accesible para una plataforma de aprendizaje orientada al progreso.",
+    "source_references": ["Brief del producto: moderno, responsive y profesional", "Experiencia funcional existente de la plataforma anterior"],
+    "created_at": "2026-07-22"
+  },
+  "design_system": {
+    "color": {
+      "palette_type": "analogous",
+      "primary": {"hex": "#6757F5", "role": "Acciones principales, foco y marca"},
+      "secondary": {"hex": "#0B1220", "role": "Fondos profundos y texto de alto contraste"},
+      "accent": {"hex": "#22D3B6", "role": "Progreso, estados positivos y detalles energéticos"},
+      "neutral": {
+        "scale": ["#FFFFFF", "#F7F8FC", "#EEF0F6", "#D8DCE8", "#9AA3B5", "#697386", "#364153", "#172033", "#0B1220"],
+        "usage": "Superficies claras, texto secundario y divisores discretos"
+      },
+      "semantic": {"success": "#159A7E", "warning": "#D97706", "error": "#DC3157", "info": "#3979F6"},
+      "surface": {"background": "#F7F8FC", "card": "#FFFFFF", "elevated": "#FCFCFF"},
+      "contrast_strategy": "Texto oscuro sobre superficies claras y texto blanco sobre fondos de marca; contraste WCAG AA"
+    },
+    "typography": {
+      "type_scale": {
+        "display": {"size": "clamp(3.25rem, 7vw, 6.5rem)", "weight": "780", "line_height": "0.94", "tracking": "-0.06em"},
+        "heading_1": {"size": "clamp(2.5rem, 5vw, 4.75rem)", "weight": "760", "line_height": "1", "tracking": "-0.05em"},
+        "heading_2": {"size": "clamp(2rem, 3.5vw, 3.5rem)", "weight": "740", "line_height": "1.06", "tracking": "-0.04em"},
+        "heading_3": {"size": "1.25rem", "weight": "720", "line_height": "1.25", "tracking": "-0.02em"},
+        "body": {"size": "1rem", "weight": "450", "line_height": "1.7", "tracking": "-0.01em"},
+        "body_small": {"size": "0.875rem", "weight": "500", "line_height": "1.55", "tracking": "0"},
+        "caption": {"size": "0.75rem", "weight": "650", "line_height": "1.4", "tracking": "0.02em"},
+        "overline": {"size": "0.75rem", "weight": "750", "line_height": "1.2", "tracking": "0.12em"}
+      },
+      "font_families": {"heading": "Manrope, Inter, ui-sans-serif, system-ui", "body": "Inter, ui-sans-serif, system-ui", "mono": "ui-monospace, SFMono-Regular, monospace"},
+      "font_style_notes": "Sans geométrica con títulos compactos y cuerpo de lectura humanista"
+    },
+    "spacing": {
+      "base_unit": "4px",
+      "scale": ["4px", "8px", "12px", "16px", "24px", "32px", "48px", "64px", "96px", "128px"],
+      "content_density": "comfortable",
+      "section_rhythm": "Secciones amplias de 96–128px en escritorio y 64–80px en móvil"
+    },
+    "layout": {
+      "grid_system": "12 columnas fluidas",
+      "max_content_width": "1200px",
+      "columns": "12",
+      "gutter": "clamp(20px, 4vw, 40px)",
+      "breakpoints": ["480px", "720px", "960px", "1200px"],
+      "alignment_tendency": "Asimetría controlada sobre una cuadrícula estricta"
+    },
+    "shape": {
+      "border_radius": {"small": "10px", "medium": "16px", "large": "28px", "pill": "999px"},
+      "border_usage": "Bordes sutiles de 1px con tinte violeta",
+      "divider_style": "Líneas suaves con opacidad baja"
+    },
+    "elevation": {
+      "shadow_style": "soft diffused",
+      "levels": {"low": "0 8px 24px rgba(21, 24, 44, .06)", "medium": "0 24px 64px rgba(38, 30, 96, .12)", "high": "0 36px 110px rgba(27, 22, 70, .2)"},
+      "depth_cues": "Sombras difusas, capas superpuestas, blur y gradientes"
+    },
+    "iconography": {"style": "lineal redondeado", "stroke_weight": "1.75px", "size_scale": ["16px", "20px", "24px", "32px"], "preferred_set": "SVG propio compatible con Lucide"},
+    "motion": {
+      "easing": "cubic-bezier(.2,.8,.2,1)",
+      "duration_scale": {"micro": "160ms", "normal": "320ms", "macro": "700ms"},
+      "entrance_pattern": "Fade y desplazamiento vertical breve",
+      "exit_pattern": "Fade rápido",
+      "philosophy": "Movimiento funcional y sereno, nunca distractor"
+    },
+    "components": {
+      "button_style": "Botones sólidos o translúcidos, bordes redondeados y elevación al hover",
+      "input_style": "Campos altos con etiqueta visible, icono contextual y anillo de foco amplio",
+      "card_style": "Superficies blancas o glass con bordes finos y radios amplios",
+      "navigation_pattern": "Barra ligera con marca a la izquierda y CTA a la derecha",
+      "modal_style": "Panel elevado con fondo neutro y foco claro",
+      "list_style": "Filas aireadas con iconos y estados de color",
+      "component_notes": "Los componentes comunican avance mediante barras, métricas y estados legibles"
+    }
+  },
+  "design_style": {
+    "aesthetic": {
+      "mood": ["optimista", "preciso", "sereno", "premium"],
+      "visual_metaphor": "Una ruta iluminada que convierte aprendizaje en avance visible",
+      "era_influence": "SaaS contemporáneo 2026",
+      "genre": "education technology premium",
+      "personality_traits": ["confiable", "cercana", "ambiciosa", "meticulosa"],
+      "adjectives": ["clara", "dinámica", "refinada", "humana"]
+    },
+    "visual_language": {
+      "complexity": "moderate",
+      "ornamentation": "subtle accents",
+      "whitespace_usage": "Generoso, con bloques compactos solo para métricas",
+      "visual_weight_distribution": "Hero dominante y tarjetas de apoyo más ligeras",
+      "focal_strategy": "single hero element",
+      "contrast_level": "high",
+      "texture_usage": "Grano muy sutil y retícula de puntos en fondos"
+    },
+    "composition": {
+      "hierarchy_method": "Escala tipográfica, color y aislamiento espacial",
+      "balance_type": "asymmetric",
+      "flow_direction": "Diagonal ascendente de izquierda a derecha",
+      "grouping_strategy": "Tarjetas por propósito con proximidad fuerte",
+      "negative_space_role": "Aporta calma y hace evidente la siguiente acción"
+    },
+    "imagery": {
+      "photo_treatment": "Sin fotografía en la portada; producto como protagonista",
+      "illustration_style": "Interfaces abstractas con geometría suave",
+      "graphic_elements": "Orbes degradados, líneas de ruta, estrellas y métricas",
+      "pattern_usage": "Retícula puntual de baja opacidad",
+      "image_shape": "Rectángulos redondeados y capas flotantes"
+    },
+    "interaction_feel": {
+      "feedback_style": "Inmediato mediante color, borde y microdesplazamiento",
+      "hover_behavior": "Elevación de 2–4px y brillo controlado",
+      "transition_personality": "smooth glide",
+      "loading_style": "Skeletons suaves sin saltos de layout",
+      "microinteraction_density": "low-to-medium"
+    },
+    "brand_voice_in_ui": {
+      "tone": "Motivador y directo",
+      "formality": "Profesional cercana",
+      "cta_style": "Invitación clara orientada a la acción",
+      "empty_state_approach": "Explica el siguiente paso sin culpabilizar",
+      "error_tone": "Calmado, específico y reparable"
+    }
+  },
+  "visual_effects": {
+    "overview": {"effect_intensity": "subtle-accent", "performance_tier": "lightweight", "fallback_strategy": "Desactivar movimiento y mantener gradientes estáticos", "primary_technology": "CSS only"},
+    "background_effects": {"type": "gradient-animation", "description": "Orbes de marca con movimiento lento", "technology": "CSS", "params": {"color_palette": ["#6757F5", "#22D3B6", "#9D8CFF"], "speed": "18s", "density": "low", "opacity": "0.18", "blend_mode": "normal"}},
+    "particle_systems": {"enabled": false, "type": "none", "description": "No se usan partículas", "technology": "none", "params": {"count": 0, "shape": "none", "size_range": "0", "movement_pattern": "none", "color_behavior": "none", "interaction": "none", "spawn_area": "none"}},
+    "3d_elements": {"enabled": false, "type": "abstract-geometry", "description": "Profundidad simulada solo con CSS", "technology": "CSS", "params": {"renderer": "none", "lighting": "none", "camera": "none", "materials": "none", "geometry": "layered cards", "post_processing": [], "interaction_model": "none"}},
+    "shader_effects": {"enabled": false, "type": "none", "description": "Sin shaders", "technology": "none", "params": {"uniforms": [], "vertex_manipulation": "none", "fragment_output": "none", "noise_type": "none", "distortion": "none"}},
+    "scroll_effects": {"parallax": {"enabled": false, "layers": "0", "depth_range": "0", "speed_curve": "none"}, "scroll_triggered_animations": {"enabled": true, "trigger_points": "15% del elemento visible", "animation_type": "fade-up", "scrub_behavior": "triggered once"}, "scroll_morphing": {"enabled": false, "description": "Sin morphing"}},
+    "text_effects": {"type": "gradient-fill", "description": "Una palabra clave del hero usa degradado de marca", "technology": "CSS", "params": {"split_strategy": "none", "animation_per_unit": "none", "stagger": "0", "effect_style": "static gradient with subtle background shift"}},
+    "cursor_effects": {"enabled": false, "type": "none", "description": "Cursor nativo", "params": {"shape": "default", "size": "default", "blend_mode": "normal", "trail": "none", "interaction_zone": "none"}},
+    "image_effects": {"type": "parallax-tilt", "description": "Tarjeta de producto con inclinación visual estática y hover mínimo", "technology": "CSS", "params": {"filter_pipeline": "none", "hover_transform": "translateY(-4px)", "reveal_animation": "fade-up", "distortion_type": "none"}},
+    "glassmorphism_neumorphism": {"enabled": true, "style": "frosted-layers", "params": {"blur_radius": "20px", "transparency": "0.76", "border_treatment": "1px solid rgba(255,255,255,.65)", "shadow_type": "soft diffused", "light_source_angle": "top-left"}},
+    "canvas_drawings": {"enabled": false, "type": "none", "description": "Sin canvas para mantener rendimiento", "technology": "none", "params": {"draw_method": "none", "animation_loop": "none", "color_scheme": "brand palette", "responsiveness": "not applicable", "interaction": "none"}},
+    "svg_animations": {"enabled": true, "type": "decorative-loop", "description": "Indicadores y líneas de progreso con transición CSS", "params": {"animation_method": "CSS transforms", "path_morphing": false, "stroke_animation": "subtle", "filter_effects": "none"}},
+    "composite_notes": "Las capas de glass, los orbes y el fade-up crean profundidad ligera. prefers-reduced-motion elimina desplazamientos y animaciones continuas."
+  }
+}

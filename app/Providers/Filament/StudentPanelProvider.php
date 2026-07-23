@@ -26,7 +26,7 @@ class StudentPanelProvider extends PanelProvider
             ->id('student')
             ->path('student')
             ->viteTheme('resources/css/filament/student/theme.css')
-            ->brandName('AulaPro · Estudiante')
+            ->brandName('VoranaPro · Estudiante')
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->colors([

@@ -17,8 +17,8 @@ class PanelRenderingTest extends TestCase
 
     public function test_public_and_login_pages_render(): void
     {
-        $this->get('/')->assertOk()->assertSee('AulaPro');
-        $this->get('/login')->assertOk()->assertSee('Un solo acceso');
+        $this->get('/')->assertOk()->assertSee('VoranaPro');
+        $this->get('/login')->assertOk()->assertSee('Un acceso para');
         $this->get('/admin/login')->assertRedirect('/login');
         $this->get('/instructor/login')->assertRedirect('/login');
         $this->get('/student/login')->assertRedirect('/login');
