@@ -180,7 +180,8 @@ class RevealPresentationTest extends TestCase
         $first = $this->readyPresentation($firstTopic, $scenario['instructor'], 'first-version');
         $this->readyPresentation($secondTopic, $scenario['instructor'], 'second-version');
 
-        $response = $this->actingAs($scenario['student'])->get(route('topics.presentation.launch', $firstTopic));
+        $response = $this->actingAs($scenario['student'])
+            ->get('http://localhost'.route('topics.presentation.launch', $firstTopic, false));
         $response->assertRedirect();
         $location = $response->headers->get('Location');
         $this->assertStringStartsWith('http://slides.example.test/p/', $location);
@@ -206,7 +207,7 @@ class RevealPresentationTest extends TestCase
             ->assertHeader('Content-Range', 'bytes 0-3/10');
 
         $this->actingAs($scenario['student'])
-            ->get(route('topics.presentation.launch', $secondTopic))
+            ->get('http://localhost'.route('topics.presentation.launch', $secondTopic, false))
             ->assertForbidden();
 
         QuizAttempt::create([
@@ -219,7 +220,7 @@ class RevealPresentationTest extends TestCase
         ]);
 
         $this->actingAs($scenario['student'])
-            ->get(route('topics.presentation.launch', $secondTopic))
+            ->get('http://localhost'.route('topics.presentation.launch', $secondTopic, false))
             ->assertRedirect();
 
         $this->assertSame('ready', $first->fresh()->status);
@@ -241,6 +242,19 @@ class RevealPresentationTest extends TestCase
 
         Cache::flush();
         $this->get('http://slides.example.test/p/'.$token.'/')->assertNotFound();
+    }
+
+    public function test_the_slides_subdomain_only_serves_tokenized_presentation_assets(): void
+    {
+        foreach (['/', '/login', '/admin/login', '/unrelated/path'] as $path) {
+            $this->get('http://slides.example.test'.$path)
+                ->assertNotFound()
+                ->assertHeaderMissing('Set-Cookie');
+        }
+
+        $this->get('http://localhost/')
+            ->assertOk()
+            ->assertSee('AulaPro');
     }
 
     public function test_student_topic_pages_respect_course_progress(): void
