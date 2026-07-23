@@ -257,6 +257,7 @@ class RevealPresentationTest extends TestCase
         $asset->assertSee('voranapro_script_retry', false);
         $asset->assertSee('motor y sus complementos', false);
         $asset->assertSee('stabilizeLayout', false);
+        $asset->assertSee("document.querySelector('.reveal .slides section.present')", false);
         $asset->assertSee('voranapro:reveal-ready', false);
         $asset->assertSee('voranapro:reveal-layout', false);
 
