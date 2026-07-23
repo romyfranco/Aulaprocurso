@@ -254,7 +254,7 @@ class RevealPresentationTest extends TestCase
 
         $this->get('http://localhost/')
             ->assertOk()
-            ->assertSee('AulaPro');
+            ->assertSee('VoranaPro');
     }
 
     public function test_student_topic_pages_respect_course_progress(): void

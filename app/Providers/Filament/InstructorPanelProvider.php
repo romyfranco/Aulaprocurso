@@ -26,7 +26,7 @@ class InstructorPanelProvider extends PanelProvider
             ->id('instructor')
             ->path('instructor')
             ->viteTheme('resources/css/filament/instructor/theme.css')
-            ->brandName('AulaPro · Instructor')
+            ->brandName('VoranaPro · Instructor')
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->colors(['primary' => Color::hex('#0D9488')])

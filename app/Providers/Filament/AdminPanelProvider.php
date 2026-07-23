@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->brandName('AulaPro · Administración')
+            ->brandName('VoranaPro · Administración')
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->colors([
