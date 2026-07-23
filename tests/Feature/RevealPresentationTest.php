@@ -61,6 +61,21 @@ class RevealPresentationTest extends TestCase
         $this->assertLessThan($finalBodyPosition, $bridgePosition);
     }
 
+    public function test_iframe_keeps_its_full_size_styles_when_it_becomes_visible(): void
+    {
+        $scenario = $this->scenario();
+        $topic = $scenario['topics'][0];
+        $this->readyPresentation($topic, $scenario['instructor'], 'responsive-frame');
+
+        $view = $this->actingAs($scenario['admin'])
+            ->view('components.reveal-presentation', ['topic' => $topic->refresh()]);
+
+        $view->assertSee('class="voranapro-reveal-frame"', false);
+        $view->assertSee(":class=\"{ 'is-prepared': revealPrepared, 'is-ready': revealReady }\"", false);
+        $view->assertSee('width:100%;height:100%', false);
+        $view->assertDontSee(':style="revealReady', false);
+    }
+
     use RefreshDatabase;
 
     protected function setUp(): void
