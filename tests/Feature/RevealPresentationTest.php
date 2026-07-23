@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Exceptions\InvalidRevealArchive;
+use App\Http\Controllers\ServeRevealAssetController;
 use App\Jobs\ProcessRevealPresentation;
 use App\Models\Course;
 use App\Models\Enrollment;
@@ -39,6 +40,25 @@ class RevealPresentationTest extends TestCase
             config('reveal.max_files'),
             config('reveal.rate_limit_per_minute')
         );
+    }
+
+    public function test_loader_bridge_is_inserted_before_the_final_body_tag(): void
+    {
+        $controller = app(ServeRevealAssetController::class);
+        $method = new \ReflectionMethod($controller, 'prepareHtml');
+        $method->setAccessible(true);
+        $html = '<html><body><script>const template = "</body>";</script></body></html>';
+
+        $prepared = $method->invoke($controller, $html, str_repeat('a', 64), 'index.html');
+        $templatePosition = strpos($prepared, 'const template = "</body>";');
+        $bridgePosition = strpos($prepared, '<script data-voranapro-reveal-bridge>');
+        $finalBodyPosition = strripos($prepared, '</body>');
+
+        $this->assertIsInt($templatePosition);
+        $this->assertIsInt($bridgePosition);
+        $this->assertIsInt($finalBodyPosition);
+        $this->assertGreaterThan($templatePosition, $bridgePosition);
+        $this->assertLessThan($finalBodyPosition, $bridgePosition);
     }
 
     use RefreshDatabase;

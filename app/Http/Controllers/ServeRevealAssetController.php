@@ -533,8 +533,9 @@ HTML;
 </script>
 HTML;
 
-        if (preg_match('/<\/body\s*>/i', $html, $body, PREG_OFFSET_CAPTURE) === 1) {
-            $offset = $body[0][1];
+        if (preg_match_all('/<\/body\s*>/i', $html, $body, PREG_OFFSET_CAPTURE) >= 1) {
+            $lastBodyTag = array_key_last($body[0]);
+            $offset = $body[0][$lastBodyTag][1];
 
             return substr($html, 0, $offset).$bridge."\n".substr($html, $offset);
         }
