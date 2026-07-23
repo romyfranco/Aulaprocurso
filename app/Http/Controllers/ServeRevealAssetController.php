@@ -143,12 +143,26 @@ HTML;
         };
         check();
     });
-    const waitForImage = image => {
-        if (image.complete) return Promise.resolve(image.naturalWidth > 0);
-        return withTimeout(new Promise(resolve => {
+    const waitForImageEvent = image => withTimeout(new Promise(resolve => {
+            if (image.complete) return resolve(image.naturalWidth > 0);
             image.addEventListener('load', () => resolve(true), { once: true });
             image.addEventListener('error', () => resolve(false), { once: true });
-        }), 60000);
+        }), 45000);
+    const waitForImage = async image => {
+        if (await waitForImageEvent(image)) return true;
+
+        const originalSource = image.currentSrc || image.getAttribute('src');
+        if (!originalSource) return false;
+
+        for (let attempt = 1; attempt <= 2; attempt += 1) {
+            const retryUrl = new URL(originalSource, document.baseURI);
+            retryUrl.searchParams.set('voranapro_retry', String(attempt));
+            image.removeAttribute('srcset');
+            image.src = retryUrl.href;
+            if (await waitForImageEvent(image)) return true;
+        }
+
+        return false;
     };
     const preloadImage = url => withTimeout(new Promise(resolve => {
         const image = new Image();
@@ -243,7 +257,9 @@ HTML;
                 if (result !== true) failed += 1;
                 setProgress(65 + (completed / tasks.length) * 28, 'Cargando imágenes ' + completed + ' de ' + tasks.length + '…');
             })));
-            if (failed > 0) throw new Error('No se pudieron cargar ' + failed + ' recursos visuales.');
+            if (failed > 0) {
+                setProgress(94, 'Finalizando; ' + failed + ' recursos visuales no respondieron…');
+            }
 
             setProgress(96, 'Ajustando la presentación…');
             refresh();
