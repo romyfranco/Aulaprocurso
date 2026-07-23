@@ -24,7 +24,7 @@ Route::domain(config('reveal.host'))
     ->group(function (): void {
         Route::get('/p/{token}/{path?}', ServeRevealAssetController::class)
             ->where('path', '.*')
-            ->middleware('throttle:240,1')
+            ->middleware('throttle:'.config('reveal.rate_limit_per_minute').',1')
             ->name('reveal.assets');
 
         Route::any('/{path?}', fn () => abort(404))

@@ -32,6 +32,14 @@ class RevealPresentationTest extends TestCase
         $this->assertGreaterThanOrEqual(20, config('livewire.temporary_file_upload.max_upload_time'));
     }
 
+    public function test_asset_rate_limit_can_serve_the_maximum_number_of_deck_files(): void
+    {
+        $this->assertGreaterThan(
+            config('reveal.max_files'),
+            config('reveal.rate_limit_per_minute')
+        );
+    }
+
     use RefreshDatabase;
 
     protected function setUp(): void
