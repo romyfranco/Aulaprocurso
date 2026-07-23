@@ -12,6 +12,9 @@
     <style>
         @keyframes voranapro-viewer-spin { to { transform: rotate(360deg); } }
         @keyframes voranapro-viewer-pulse { 50% { opacity: .55; transform: scale(.96); } }
+        .voranapro-reveal-frame { visibility: hidden; opacity: 0; transition: opacity .35s ease; }
+        .voranapro-reveal-frame.is-prepared { visibility: visible; }
+        .voranapro-reveal-frame.is-ready { visibility: visible; opacity: 1; }
         @media (prefers-reduced-motion: reduce) {
             .voranapro-viewer-spinner, .voranapro-viewer-mark { animation-duration: 1.8s !important; }
         }
@@ -111,6 +114,7 @@
             </div>
 
             <iframe
+                class="voranapro-reveal-frame"
                 x-ref="presentation"
                 src="{{ $launchUrl }}"
                 title="Presentación: {{ $topic->title }}"
@@ -120,8 +124,8 @@
                 allowfullscreen
                 referrerpolicy="no-referrer"
                 :aria-hidden="(! revealReady).toString()"
-                :style="revealReady ? 'opacity:1;visibility:visible' : (revealPrepared ? 'opacity:0;visibility:visible' : 'opacity:0;visibility:hidden')"
-                style="position:absolute;inset:0;display:block;width:100%;height:100%;border:0;opacity:0;visibility:hidden;transition:opacity .35s ease"
+                :class="{ 'is-prepared': revealPrepared, 'is-ready': revealReady }"
+                style="position:absolute;inset:0;display:block;width:100%;height:100%;border:0"
             ></iframe>
         </div>
 
