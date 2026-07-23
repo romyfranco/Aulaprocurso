@@ -196,11 +196,14 @@ class RevealPresentationTest extends TestCase
         $response->assertRedirect();
         $location = $response->headers->get('Location');
         $this->assertStringStartsWith('http://slides.example.test/p/', $location);
-        preg_match('#/p/([A-Za-z0-9]{64})/#', $location, $matches);
+        preg_match('#/p/([A-Za-z0-9]{64})/index\.html$#', $location, $matches);
         $token = $matches[1] ?? null;
         $this->assertNotNull($token);
 
-        $asset = $this->get('http://slides.example.test/p/'.$token.'/');
+        $this->get('http://slides.example.test/p/'.$token)
+            ->assertRedirect('http://slides.example.test/p/'.$token.'/index.html');
+
+        $asset = $this->get('http://slides.example.test/p/'.$token.'/index.html');
         $asset
             ->assertOk()
             ->assertHeader('Content-Type', 'text/html; charset=UTF-8')
@@ -246,13 +249,13 @@ class RevealPresentationTest extends TestCase
         $location = $this->actingAs($scenario['student'])
             ->get(route('topics.presentation.launch', $topic))
             ->headers->get('Location');
-        preg_match('#/p/([A-Za-z0-9]{64})/#', $location, $matches);
+        preg_match('#/p/([A-Za-z0-9]{64})/index\.html$#', $location, $matches);
         $token = $matches[1];
 
         $this->get('http://slides.example.test/p/'.$token.'/../.env')->assertNotFound();
 
         Cache::flush();
-        $this->get('http://slides.example.test/p/'.$token.'/')->assertNotFound();
+        $this->get('http://slides.example.test/p/'.$token.'/index.html')->assertNotFound();
     }
 
     public function test_the_slides_subdomain_only_serves_tokenized_presentation_assets(): void

@@ -6,11 +6,11 @@ use App\Models\RevealPresentation;
 use App\Services\RevealAccessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class ServeRevealAssetController extends Controller
 {
-    public function __invoke(Request $request, RevealAccessService $access, string $token, ?string $path = null): BinaryFileResponse
+    public function __invoke(Request $request, RevealAccessService $access, string $token, ?string $path = null): Response
     {
         $payload = $access->resolve($token);
         abort_unless($payload, 404);
@@ -18,7 +18,13 @@ class ServeRevealAssetController extends Controller
         $presentation = RevealPresentation::query()->find($payload['presentation_id']);
         abort_unless($presentation?->isReady() && hash_equals($presentation->version, $payload['version']), 404);
 
-        $relativePath = $this->normalizeRequestedPath($path ?: $presentation->entry_path);
+        if ($path === null) {
+            $entryPath = implode('/', array_map('rawurlencode', explode('/', $presentation->entry_path)));
+
+            return redirect()->away(rtrim(config('reveal.url'), '/').'/p/'.$token.'/'.$entryPath);
+        }
+
+        $relativePath = $this->normalizeRequestedPath($path);
         $basePath = realpath(Storage::disk('local')->path($presentation->storage_path));
         $filePath = realpath(Storage::disk('local')->path($presentation->storage_path.'/'.$relativePath));
 
