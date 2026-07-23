@@ -41,7 +41,7 @@ class TopicForm
                         ->directory('reveal/archives')
                         ->visibility('private')
                         ->acceptedFileTypes(['application/zip', 'application/x-zip-compressed'])
-                        ->maxSize(102400)
+                        ->maxSize((int) ceil(config('reveal.archive_max_bytes') / 1024))
                         ->storeFileNamesIn('pending_reveal_original_name')
                         ->helperText('Máximo 100 MB. Una carga nueva se activará solo después de superar todas las validaciones.'),
                     Placeholder::make('reveal_processing_status')
