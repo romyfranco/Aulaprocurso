@@ -72,6 +72,8 @@ Configuración de producción:
 REVEAL_HOST=slides.cursos.teslapanama.com
 REVEAL_URL=https://slides.cursos.teslapanama.com
 REVEAL_PARENT_ORIGIN=https://cursos.teslapanama.com
+REVEAL_DISK=reveal
+REVEAL_STORAGE_ROOT=/home/u322679524/reveal-storage
 REVEAL_ARCHIVE_MAX_BYTES=104857600
 REVEAL_EXTRACTED_MAX_BYTES=314572800
 REVEAL_MAX_FILES=5000
@@ -85,6 +87,8 @@ SESSION_SECURE_COOKIE=true
 En Hostinger, \`cursos.teslapanama.com\` y \`slides.cursos.teslapanama.com\` deben apuntar
 al mismo directorio público de Laravel y ambos deben tener SSL. \`SESSION_DOMAIN\` debe
 quedar vacío para que la cookie principal sea exclusiva del dominio del aula.
+\`REVEAL_STORAGE_ROOT\` debe apuntar a una carpeta privada fuera de \`public_html\` para
+que los despliegues de Git no eliminen los ZIP ni las presentaciones extraídas.
 
 Después de publicar una versión:
 

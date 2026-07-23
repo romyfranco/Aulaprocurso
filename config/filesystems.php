@@ -38,6 +38,14 @@ return [
             'report' => false,
         ],
 
+        'reveal' => [
+            'driver' => 'local',
+            'root' => env('REVEAL_STORAGE_ROOT', storage_path('app/private')),
+            'serve' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

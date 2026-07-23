@@ -26,8 +26,8 @@ class TopicObserver
             'status' => 'processing',
             'original_name' => $originalName,
             'archive_path' => $archivePath,
-            'archive_size' => Storage::disk('local')->exists($archivePath)
-                ? Storage::disk('local')->size($archivePath)
+            'archive_size' => Storage::disk(config('reveal.disk'))->exists($archivePath)
+                ? Storage::disk(config('reveal.disk'))->size($archivePath)
                 : 0,
         ]);
 
