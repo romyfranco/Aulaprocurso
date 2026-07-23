@@ -37,7 +37,7 @@ class TopicForm
                 ->schema([
                     FileUpload::make('pending_reveal_archive')
                         ->label('Paquete Reveal.js (.zip)')
-                        ->disk('local')
+                        ->disk(config('reveal.disk'))
                         ->directory('reveal/archives')
                         ->visibility('private')
                         ->acceptedFileTypes(['application/zip', 'application/x-zip-compressed'])

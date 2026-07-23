@@ -37,7 +37,7 @@ class RevealPresentationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('local');
+        Storage::fake('reveal');
         Cache::flush();
     }
 
@@ -54,9 +54,9 @@ class RevealPresentationTest extends TestCase
             ],
         ] as $archive => $files) {
             $path = $this->storeZip($archive, $files);
-            $destination = Storage::disk('local')->path('reveal/test/'.pathinfo($archive, PATHINFO_FILENAME));
+            $destination = Storage::disk('reveal')->path('reveal/test/'.pathinfo($archive, PATHINFO_FILENAME));
 
-            $metadata = app(RevealArchiveExtractor::class)->extract(Storage::disk('local')->path($path), $destination);
+            $metadata = app(RevealArchiveExtractor::class)->extract(Storage::disk('reveal')->path($path), $destination);
 
             $this->assertSame('index.html', $metadata['entry_path']);
             $this->assertSame(2, $metadata['file_count']);
@@ -82,8 +82,8 @@ class RevealPresentationTest extends TestCase
 
             try {
                 app(RevealArchiveExtractor::class)->extract(
-                    Storage::disk('local')->path($path),
-                    Storage::disk('local')->path('reveal/rejected/'.pathinfo($archive, PATHINFO_FILENAME)),
+                    Storage::disk('reveal')->path($path),
+                    Storage::disk('reveal')->path('reveal/rejected/'.pathinfo($archive, PATHINFO_FILENAME)),
                 );
                 $this->fail("{$archive} debió ser rechazado.");
             } catch (InvalidRevealArchive) {
@@ -99,8 +99,8 @@ class RevealPresentationTest extends TestCase
 
         $this->expectException(InvalidRevealArchive::class);
         app(RevealArchiveExtractor::class)->extract(
-            Storage::disk('local')->path($symlink),
-            Storage::disk('local')->path('reveal/rejected/symlink'),
+            Storage::disk('reveal')->path($symlink),
+            Storage::disk('reveal')->path('reveal/rejected/symlink'),
         );
     }
 
@@ -114,8 +114,8 @@ class RevealPresentationTest extends TestCase
 
         try {
             app(RevealArchiveExtractor::class)->extract(
-                Storage::disk('local')->path($tooManyFiles),
-                Storage::disk('local')->path('reveal/rejected/too-many'),
+                Storage::disk('reveal')->path($tooManyFiles),
+                Storage::disk('reveal')->path('reveal/rejected/too-many'),
             );
             $this->fail('El límite de archivos debió impedir la extracción.');
         } catch (InvalidRevealArchive) {
@@ -128,8 +128,8 @@ class RevealPresentationTest extends TestCase
 
         $this->expectException(InvalidRevealArchive::class);
         app(RevealArchiveExtractor::class)->extract(
-            Storage::disk('local')->path($tooLarge),
-            Storage::disk('local')->path('reveal/rejected/too-large'),
+            Storage::disk('reveal')->path($tooLarge),
+            Storage::disk('reveal')->path('reveal/rejected/too-large'),
         );
     }
 
@@ -149,7 +149,7 @@ class RevealPresentationTest extends TestCase
             'status' => 'processing',
             'original_name' => 'new.zip',
             'archive_path' => $archive,
-            'archive_size' => Storage::disk('local')->size($archive),
+            'archive_size' => Storage::disk('reveal')->size($archive),
         ]);
 
         app(ProcessRevealPresentation::class, ['presentation' => $new])->handle(app(RevealArchiveExtractor::class));
@@ -157,8 +157,8 @@ class RevealPresentationTest extends TestCase
         $this->assertSame($new->id, $topic->refresh()->active_reveal_presentation_id);
         $this->assertSame('ready', $new->refresh()->status);
         $this->assertDatabaseMissing('reveal_presentations', ['id' => $old->id]);
-        Storage::disk('local')->assertMissing('reveal/decks/old-version');
-        Storage::disk('local')->assertExists($new->storage_path.'/index.html');
+        Storage::disk('reveal')->assertMissing('reveal/decks/old-version');
+        Storage::disk('reveal')->assertExists($new->storage_path.'/index.html');
     }
 
     public function test_a_failed_upload_keeps_the_current_presentation_active(): void
@@ -174,14 +174,14 @@ class RevealPresentationTest extends TestCase
             'status' => 'processing',
             'original_name' => 'invalid.zip',
             'archive_path' => $archive,
-            'archive_size' => Storage::disk('local')->size($archive),
+            'archive_size' => Storage::disk('reveal')->size($archive),
         ]);
 
         app(ProcessRevealPresentation::class, ['presentation' => $new])->handle(app(RevealArchiveExtractor::class));
 
         $this->assertSame($old->id, $topic->refresh()->active_reveal_presentation_id);
         $this->assertSame('failed', $new->refresh()->status);
-        Storage::disk('local')->assertExists($old->storage_path.'/index.html');
+        Storage::disk('reveal')->assertExists($old->storage_path.'/index.html');
     }
 
     public function test_students_receive_a_temporary_token_only_for_unlocked_topics(): void
@@ -352,10 +352,10 @@ class RevealPresentationTest extends TestCase
     private function readyPresentation(Topic $topic, User $uploader, string $version): RevealPresentation
     {
         $storagePath = 'reveal/decks/'.$version;
-        Storage::disk('local')->put($storagePath.'/index.html', $this->deckHtml());
-        Storage::disk('local')->put($storagePath.'/dist/reveal.css', '.reveal { color: #fff; }');
-        Storage::disk('local')->put($storagePath.'/media/sample.mp4', '0123456789');
-        Storage::disk('local')->put('reveal/archives/'.$version.'.zip', 'archive');
+        Storage::disk('reveal')->put($storagePath.'/index.html', $this->deckHtml());
+        Storage::disk('reveal')->put($storagePath.'/dist/reveal.css', '.reveal { color: #fff; }');
+        Storage::disk('reveal')->put($storagePath.'/media/sample.mp4', '0123456789');
+        Storage::disk('reveal')->put('reveal/archives/'.$version.'.zip', 'archive');
 
         $presentation = RevealPresentation::create([
             'topic_id' => $topic->id,
@@ -396,7 +396,7 @@ class RevealPresentationTest extends TestCase
 
         $zip->close();
         $storagePath = 'reveal/archives/'.$name;
-        Storage::disk('local')->put($storagePath, file_get_contents($temporary));
+        Storage::disk('reveal')->put($storagePath, file_get_contents($temporary));
         unlink($temporary);
 
         return $storagePath;

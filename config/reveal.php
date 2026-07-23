@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'disk' => env('REVEAL_DISK', 'reveal'),
     'host' => env('REVEAL_HOST', 'slides.localhost'),
     'url' => env('REVEAL_URL', 'http://slides.localhost'),
     'parent_origin' => env('REVEAL_PARENT_ORIGIN', env('APP_URL', 'http://localhost')),

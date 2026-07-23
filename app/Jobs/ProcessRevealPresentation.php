@@ -30,12 +30,13 @@ class ProcessRevealPresentation implements ShouldQueue
 
         $temporaryPath = 'reveal/tmp/'.$presentation->version;
         $finalPath = 'reveal/decks/'.$presentation->version;
-        $temporaryAbsolutePath = Storage::disk('local')->path($temporaryPath);
-        $finalAbsolutePath = Storage::disk('local')->path($finalPath);
+        $disk = Storage::disk(config('reveal.disk'));
+        $temporaryAbsolutePath = $disk->path($temporaryPath);
+        $finalAbsolutePath = $disk->path($finalPath);
 
         try {
             $metadata = $extractor->extract(
-                Storage::disk('local')->path($presentation->archive_path),
+                $disk->path($presentation->archive_path),
                 $temporaryAbsolutePath,
             );
 
@@ -70,8 +71,9 @@ class ProcessRevealPresentation implements ShouldQueue
         $presentation = $this->presentation->fresh();
 
         if ($presentation) {
-            Storage::disk('local')->deleteDirectory('reveal/tmp/'.$presentation->version);
-            Storage::disk('local')->deleteDirectory('reveal/decks/'.$presentation->version);
+            $disk = Storage::disk(config('reveal.disk'));
+            $disk->deleteDirectory('reveal/tmp/'.$presentation->version);
+            $disk->deleteDirectory('reveal/decks/'.$presentation->version);
             $this->markFailed($presentation, $exception);
         }
     }
@@ -144,7 +146,7 @@ class ProcessRevealPresentation implements ShouldQueue
             'processed_at' => now(),
         ]);
 
-        Storage::disk('local')->delete($presentation->archive_path);
+        Storage::disk(config('reveal.disk'))->delete($presentation->archive_path);
         $this->notify($presentation, 'No se pudo procesar la presentación', $presentation->error_message, false);
     }
 

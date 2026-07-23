@@ -25,8 +25,9 @@ class ServeRevealAssetController extends Controller
         }
 
         $relativePath = $this->normalizeRequestedPath($path);
-        $basePath = realpath(Storage::disk('local')->path($presentation->storage_path));
-        $filePath = realpath(Storage::disk('local')->path($presentation->storage_path.'/'.$relativePath));
+        $disk = Storage::disk(config('reveal.disk'));
+        $basePath = realpath($disk->path($presentation->storage_path));
+        $filePath = realpath($disk->path($presentation->storage_path.'/'.$relativePath));
 
         abort_unless(
             $basePath &&

@@ -38,11 +38,11 @@ class RevealPresentation extends Model
     {
         static::deleting(function (RevealPresentation $presentation): void {
             if ($presentation->storage_path) {
-                Storage::disk('local')->deleteDirectory($presentation->storage_path);
+                Storage::disk(config('reveal.disk'))->deleteDirectory($presentation->storage_path);
             }
 
             if ($presentation->archive_path) {
-                Storage::disk('local')->delete($presentation->archive_path);
+                Storage::disk(config('reveal.disk'))->delete($presentation->archive_path);
             }
         });
     }
