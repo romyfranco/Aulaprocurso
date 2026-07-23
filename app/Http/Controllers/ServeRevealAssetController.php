@@ -78,7 +78,11 @@ class ServeRevealAssetController extends Controller
             $html = $baseTag."\n".$html;
         }
 
-        $bridge = <<<'HTML'
+        $parentOrigin = json_encode(
+            rtrim(config('reveal.parent_origin'), '/'),
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR,
+        );
+        $bridge = <<<HTML
 <script data-voranapro-reveal-bridge>
 (() => {
     const layout = () => {
@@ -94,6 +98,11 @@ class ServeRevealAssetController extends Controller
     window.addEventListener('load', refresh, { once: true });
     window.addEventListener('resize', refresh);
     window.addEventListener('pageshow', refresh);
+    window.addEventListener('message', event => {
+        if (event.origin === {$parentOrigin} && event.data === 'voranapro:reveal-layout') {
+            refresh();
+        }
+    });
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) refresh();
     });

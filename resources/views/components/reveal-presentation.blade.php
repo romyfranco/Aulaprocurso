@@ -23,11 +23,27 @@
             </a>
         </div>
 
-        <div style="width:100%;aspect-ratio:16/9;min-height:420px;max-height:75vh;overflow:hidden;border:1px solid #dbe3ef;border-radius:1rem;background:#0f172a">
+        <div
+            id="reveal-presentation-{{ $topic->getKey() }}"
+            data-reveal-origin="{{ rtrim(config('reveal.url'), '/') }}"
+            x-data
+            x-init="
+                const frame = $refs.presentation;
+                const notify = () => frame.contentWindow?.postMessage('voranapro:reveal-layout', $el.dataset.revealOrigin);
+                frame.addEventListener('load', notify);
+                const observer = new IntersectionObserver(entries => {
+                    if (entries.some(entry => entry.isIntersecting)) notify();
+                }, { threshold: 0.01 });
+                observer.observe(frame);
+                setTimeout(notify, 750);
+            "
+            style="width:100%;aspect-ratio:16/9;min-height:420px;max-height:75vh;overflow:hidden;border:1px solid #dbe3ef;border-radius:1rem;background:#0f172a"
+        >
             <iframe
+                x-ref="presentation"
                 src="{{ $launchUrl }}"
                 title="Presentación: {{ $topic->title }}"
-                loading="eager"
+                loading="lazy"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
                 allow="fullscreen"
                 allowfullscreen
