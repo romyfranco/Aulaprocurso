@@ -222,6 +222,9 @@ class RevealPresentationTest extends TestCase
             ->assertHeaderMissing('Set-Cookie');
         $asset->assertSee('<div class="reveal">', false);
         $asset->assertSee('<base href="http://slides.example.test/p/'.$token.'/">', false);
+        $asset->assertSee('data-voranapro-inlined-stylesheet="dist/reveal.css"', false);
+        $asset->assertSee('data-voranapro-inlined-script="dist/reveal.js"', false);
+        $asset->assertDontSee('<script src="dist/reveal.js"></script>', false);
         $asset->assertSee('data-voranapro-reveal-bridge', false);
         $asset->assertSee('id="voranapro-reveal-loader"', false);
         $asset->assertSee('voranapro:reveal-progress', false);
@@ -405,8 +408,10 @@ class RevealPresentationTest extends TestCase
     private function readyPresentation(Topic $topic, User $uploader, string $version): RevealPresentation
     {
         $storagePath = 'reveal/decks/'.$version;
-        Storage::disk('reveal')->put($storagePath.'/index.html', $this->deckHtml());
+        $html = str_replace('</body>', '<script src="dist/reveal.js"></script></body>', $this->deckHtml());
+        Storage::disk('reveal')->put($storagePath.'/index.html', $html);
         Storage::disk('reveal')->put($storagePath.'/dist/reveal.css', '.reveal { color: #fff; }');
+        Storage::disk('reveal')->put($storagePath.'/dist/reveal.js', 'window.Reveal = window.Reveal || {};');
         Storage::disk('reveal')->put($storagePath.'/media/sample.mp4', '0123456789');
         Storage::disk('reveal')->put('reveal/archives/'.$version.'.zip', 'archive');
 
@@ -421,7 +426,7 @@ class RevealPresentationTest extends TestCase
             'entry_path' => 'index.html',
             'archive_size' => 7,
             'extracted_size' => 100,
-            'file_count' => 3,
+            'file_count' => 4,
             'processed_at' => now(),
         ]);
 
