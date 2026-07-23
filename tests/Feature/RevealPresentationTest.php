@@ -21,6 +21,17 @@ use ZipArchive;
 
 class RevealPresentationTest extends TestCase
 {
+    public function test_livewire_temporary_upload_accepts_the_configured_reveal_archive_limit(): void
+    {
+        $expectedKilobytes = (int) ceil(config('reveal.archive_max_bytes') / 1024);
+
+        $this->assertContains(
+            "max:{$expectedKilobytes}",
+            config('livewire.temporary_file_upload.rules')
+        );
+        $this->assertGreaterThanOrEqual(20, config('livewire.temporary_file_upload.max_upload_time'));
+    }
+
     use RefreshDatabase;
 
     protected function setUp(): void
