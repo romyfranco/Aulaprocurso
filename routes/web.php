@@ -3,6 +3,7 @@
 use App\Http\Controllers\CertificateVerificationController;
 use App\Http\Controllers\LaunchRevealPresentationController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ServePublicAssetController;
 use App\Http\Controllers\ServeRevealAssetController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -36,6 +37,10 @@ Route::get('/', function () {
 });
 
 Route::get('/verify/{certificate}', CertificateVerificationController::class)->name('certificates.verify');
+
+Route::get('/storage/{path}', ServePublicAssetController::class)
+    ->where('path', '.*')
+    ->name('public.storage');
 
 Route::middleware('auth')->get('/topics/{topic}/presentation', LaunchRevealPresentationController::class)
     ->name('topics.presentation.launch');
