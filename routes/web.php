@@ -1,14 +1,24 @@
 <?php
 
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\LaunchRevealPresentationController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ServeRevealAssetController;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', function () {
     return view('landing');
 });
 
 Route::get('/verify/{certificate}', CertificateVerificationController::class)->name('certificates.verify');
+
+Route::middleware('auth')->get('/topics/{topic}/presentation', LaunchRevealPresentationController::class)
+    ->name('topics.presentation.launch');
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 
@@ -19,3 +29,17 @@ Route::middleware('guest')->group(function (): void {
 Route::get('/admin/login', fn () => redirect()->route('login'));
 Route::get('/instructor/login', fn () => redirect()->route('login'));
 Route::get('/student/login', fn () => redirect()->route('login'));
+
+Route::domain(config('reveal.host'))->group(function (): void {
+    Route::get('/p/{token}/{path?}', ServeRevealAssetController::class)
+        ->where('path', '.*')
+        ->middleware('throttle:240,1')
+        ->withoutMiddleware([
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+        ])
+        ->name('reveal.assets');
+});

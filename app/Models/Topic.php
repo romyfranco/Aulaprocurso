@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
@@ -16,7 +17,7 @@ class Topic extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['title', 'slug', 'description', 'content', 'created_by'];
+    protected $fillable = ['title', 'slug', 'description', 'content', 'pending_reveal_archive', 'pending_reveal_original_name', 'created_by'];
 
     protected static function booted(): void
     {
@@ -48,6 +49,21 @@ class Topic extends Model implements HasMedia
     public function quiz(): HasOne
     {
         return $this->hasOne(Quiz::class);
+    }
+
+    public function revealPresentation(): BelongsTo
+    {
+        return $this->belongsTo(RevealPresentation::class, 'active_reveal_presentation_id');
+    }
+
+    public function revealUploads(): HasMany
+    {
+        return $this->hasMany(RevealPresentation::class)->latest();
+    }
+
+    public function latestRevealUpload(): HasOne
+    {
+        return $this->hasOne(RevealPresentation::class)->latestOfMany();
     }
 
     public function registerMediaCollections(): void

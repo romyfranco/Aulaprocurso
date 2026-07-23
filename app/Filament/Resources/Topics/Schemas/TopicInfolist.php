@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Topics\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -18,6 +19,13 @@ class TopicInfolist
             ])->columns(2),
             Section::make('Contenido')->icon('heroicon-o-document-text')->schema([
                 TextEntry::make('content')->label('')->html()->prose()->columnSpanFull(),
+            ]),
+            Section::make('Presentación interactiva')->icon('heroicon-o-presentation-chart-bar')->schema([
+                ViewEntry::make('reveal_presentation')
+                    ->label('')
+                    ->view('filament.infolists.reveal-presentation')
+                    ->viewData(fn ($record): array => ['topic' => $record])
+                    ->columnSpanFull(),
             ]),
             Section::make('Metadatos')->icon('heroicon-o-information-circle')->schema([
                 TextEntry::make('creator.name')->label('Autor'),

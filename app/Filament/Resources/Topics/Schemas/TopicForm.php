@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Topics\Schemas;
 
+use App\Models\Topic;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -28,6 +31,32 @@ class TopicForm
                 SpatieMediaLibraryFileUpload::make('videos')->label('Videos')->collection('videos')->acceptedFileTypes(['video/mp4', 'video/webm'])->multiple(),
                 SpatieMediaLibraryFileUpload::make('documents')->label('Documentos y presentaciones')->collection('documents')->acceptedFileTypes(['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'])->multiple(),
             ])->columns(3),
+            Section::make('Presentación Reveal.js')
+                ->icon('heroicon-o-presentation-chart-bar')
+                ->description('Sube un ZIP con un único index.html. Puede estar en la raíz o dentro de una sola carpeta superior.')
+                ->schema([
+                    FileUpload::make('pending_reveal_archive')
+                        ->label('Paquete Reveal.js (.zip)')
+                        ->disk('local')
+                        ->directory('reveal/archives')
+                        ->visibility('private')
+                        ->acceptedFileTypes(['application/zip', 'application/x-zip-compressed'])
+                        ->maxSize(102400)
+                        ->storeFileNamesIn('pending_reveal_original_name')
+                        ->helperText('Máximo 100 MB. Una carga nueva se activará solo después de superar todas las validaciones.'),
+                    Placeholder::make('reveal_processing_status')
+                        ->label('Estado')
+                        ->content(function (?Topic $record): string {
+                            $upload = $record?->latestRevealUpload;
+
+                            return match ($upload?->status) {
+                                'processing' => 'Procesando la nueva presentación…',
+                                'ready' => 'Presentación disponible.',
+                                'failed' => 'La última carga falló: '.$upload->error_message,
+                                default => 'Todavía no hay una presentación cargada.',
+                            };
+                        }),
+                ])->columns(2),
         ]);
     }
 }
