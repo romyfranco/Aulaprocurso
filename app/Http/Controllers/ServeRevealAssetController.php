@@ -423,7 +423,10 @@ HTML;
             if (revealGeometryIsValid()) return true;
         }
 
-        return false;
+        return Boolean(
+            document.querySelector('[data-voranapro-inlined-stylesheet]')
+            && document.querySelector('.reveal .slides section.present'),
+        );
     };
     const waitUntilFrameIsVisible = () => {
         if (window.parent === window) return Promise.resolve(true);
