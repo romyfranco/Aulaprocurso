@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\GenerateCertificatePdf;
 use App\Models\Certificate;
 use App\Models\Enrollment;
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -26,7 +25,7 @@ class CertificateService
             $certificate->update(['qr_code_path' => $path]);
         }
         if (! app()->environment('testing') && ! $certificate->pdf_path) {
-            GenerateCertificatePdf::dispatch($certificate);
+            app(CertificatePdfService::class)->save($certificate);
         }
 
         return $certificate->refresh();

@@ -3,7 +3,7 @@
 namespace App\Filament\Student\Resources\Certificates\Pages;
 
 use App\Filament\Student\Resources\Certificates\CertificateResource;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewCertificate extends ViewRecord
@@ -13,7 +13,11 @@ class ViewCertificate extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            Action::make('download')
+                ->label('Descargar PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->url(fn (): string => route('certificates.download', $this->getRecord())),
         ];
     }
 }

@@ -18,7 +18,7 @@ class CertificatesTable
         ])->recordActions([
             ViewAction::make()->label('Ver certificado'),
             Action::make('verify')->label('Verificar')->icon('heroicon-o-qr-code')->url(fn ($record) => route('certificates.verify', $record))->openUrlInNewTab(),
-            Action::make('download')->label('Descargar PDF')->icon('heroicon-o-arrow-down-tray')->url(fn ($record) => $record->pdf_path ? asset('storage/'.$record->pdf_path) : null)->openUrlInNewTab()->visible(fn ($record) => filled($record->pdf_path)),
+            Action::make('download')->label('Descargar PDF')->icon('heroicon-o-arrow-down-tray')->url(fn ($record) => route('certificates.download', $record)),
         ]);
     }
 }

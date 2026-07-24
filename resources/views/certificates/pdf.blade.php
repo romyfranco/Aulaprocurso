@@ -1,1 +1,57 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><style>@page{margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#172033}.page{width:100%;height:100vh;padding:34px;background:linear-gradient(135deg,#0b1220,#6757f5 58%,#22d3b6)}.inner{height:100%;background:white;border-radius:18px;padding:58px 76px;text-align:center;position:relative}.eyebrow{font-size:14px;letter-spacing:4px;text-transform:uppercase;color:#6757f5;font-weight:bold}.title{font-size:48px;margin:20px 0 14px}.copy{font-size:18px;color:#697386}.student{font-size:40px;font-weight:bold;margin:28px 0 8px;color:#172033}.course{font-size:27px;color:#6757f5;font-weight:bold}.meta{display:flex;justify-content:center;gap:70px;margin-top:34px;font-size:14px;color:#697386}.qr{position:absolute;right:54px;bottom:40px;width:105px}.brand{position:absolute;left:60px;bottom:52px;font-size:20px;font-weight:bold}.code{position:absolute;left:0;right:0;bottom:24px;font-size:10px;color:#9aa3b5}</style></head><body><div class="page"><div class="inner"><div class="eyebrow">Certificado de finalización</div><div class="title">Reconocemos tu logro</div><div class="copy">Se certifica que</div><div class="student">{{ $certificate->student->name }}</div><div class="copy">completó satisfactoriamente el curso</div><div class="course">{{ $certificate->course->title }}</div><div class="meta"><span>Emitido: {{ $certificate->issued_at->format('d/m/Y') }}</span><span>Progreso: 100%</span></div><div class="brand">VoranaPro</div>@if($certificate->qr_code_path)<img class="qr" src="{{ storage_path('app/public/'.$certificate->qr_code_path) }}">@endif<div class="code">{{ $certificate->certificate_code }}</div></div></div></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page { margin: 0; }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; font-family: "DejaVu Sans", sans-serif; color: #172033; background: #172033; }
+        .page { position: relative; width: 296mm; height: 209mm; background: #172033; overflow: hidden; }
+        .accent { position: absolute; top: 0; right: 0; width: 104mm; height: 209mm; background: #6757f5; }
+        .inner { position: absolute; top: 10mm; left: 10mm; width: 236mm; height: 155mm; padding: 17mm 20mm; background: #fff; border: 2px solid #d9d4ff; text-align: center; }
+        .eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #6757f5; font-weight: bold; }
+        .title { margin: 8mm 0 4mm; font-size: 34px; font-weight: bold; }
+        .copy { font-size: 14px; color: #697386; }
+        .student { margin: 8mm 0 2mm; font-size: 29px; font-weight: bold; }
+        .course { margin-top: 3mm; font-size: 20px; color: #6757f5; font-weight: bold; }
+        .meta { width: 62%; margin: 10mm auto 0; border-collapse: collapse; color: #697386; font-size: 11px; }
+        .meta td { width: 50%; padding: 2mm; border-top: 1px solid #e5e7ef; }
+        .footer { width: 100%; margin-top: 22mm; border-collapse: collapse; }
+        .footer td { width: 33.333%; vertical-align: bottom; }
+        .brand { text-align: left; font-size: 15px; font-weight: bold; color: #6757f5; }
+        .qr-cell { text-align: right; }
+        .qr { width: 25mm; height: 25mm; }
+        .code { text-align: center; font-size: 8px; color: #9aa3b5; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="accent"></div>
+        <div class="inner">
+            <div class="eyebrow">Certificado de finalización</div>
+            <div class="title">Reconocemos tu logro</div>
+            <div class="copy">Se certifica que</div>
+            <div class="student">{{ $certificate->student->name }}</div>
+            <div class="copy">completó satisfactoriamente el curso</div>
+            <div class="course">{{ $certificate->course->title }}</div>
+            <table class="meta">
+                <tr>
+                    <td>Emitido: {{ $certificate->issued_at->format('d/m/Y') }}</td>
+                    <td>Progreso: 100%</td>
+                </tr>
+            </table>
+            <table class="footer">
+                <tr>
+                    <td class="brand">VoranaPro</td>
+                    <td class="code">{{ $certificate->certificate_code }}</td>
+                    <td class="qr-cell">
+                        @if ($qrCodeDataUri)
+                            <img class="qr" src="{{ $qrCodeDataUri }}" alt="Código QR">
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

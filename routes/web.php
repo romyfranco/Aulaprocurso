@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\DownloadCertificatePdfController;
 use App\Http\Controllers\LaunchRevealPresentationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ServePublicAssetController;
@@ -44,6 +45,9 @@ Route::get('/storage/{path}', ServePublicAssetController::class)
 
 Route::middleware('auth')->get('/topics/{topic}/presentation', LaunchRevealPresentationController::class)
     ->name('topics.presentation.launch');
+
+Route::middleware('auth')->get('/certificates/{certificate}/download', DownloadCertificatePdfController::class)
+    ->name('certificates.download');
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 
