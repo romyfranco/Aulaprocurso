@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Quizzes\Tables;
 
+use App\Filament\Actions\PreviewQuizAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -42,6 +43,7 @@ class QuizzesTable
                 //
             ])
             ->recordActions([
+                PreviewQuizAction::make(),
                 ViewAction::make(),
                 EditAction::make(),
             ])

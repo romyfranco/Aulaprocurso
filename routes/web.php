@@ -4,6 +4,7 @@ use App\Http\Controllers\CertificateVerificationController;
 use App\Http\Controllers\DownloadCertificatePdfController;
 use App\Http\Controllers\LaunchRevealPresentationController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PreviewQuizController;
 use App\Http\Controllers\ServePublicAssetController;
 use App\Http\Controllers\ServeRevealAssetController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -48,6 +49,9 @@ Route::middleware('auth')->get('/topics/{topic}/presentation', LaunchRevealPrese
 
 Route::middleware('auth')->get('/certificates/{certificate}/download', DownloadCertificatePdfController::class)
     ->name('certificates.download');
+
+Route::middleware('auth')->get('/evaluations/{quiz}/preview', PreviewQuizController::class)
+    ->name('quizzes.preview');
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 

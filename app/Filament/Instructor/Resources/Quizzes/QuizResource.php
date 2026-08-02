@@ -53,7 +53,8 @@ class QuizResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->whereHas('topic.courses.instructors', fn (Builder $query) => $query->whereKey(auth()->id()));
+        return parent::getEloquentQuery()
+            ->whereHas('topic', fn (Builder $query) => $query->managedBy(auth()->user()));
     }
 
     public static function getPages(): array

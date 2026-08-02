@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class QuizForm
 {
@@ -17,7 +18,18 @@ class QuizForm
     {
         return $schema->components([
             Section::make('Configuración')->icon('heroicon-o-adjustments-horizontal')->schema([
-                Select::make('topic_id')->label('Tema')->relationship('topic', 'title')->searchable()->preload()->required(),
+                Select::make('topic_id')
+                    ->label('Tema')
+                    ->relationship(
+                        'topic',
+                        'title',
+                        modifyQueryUsing: fn (Builder $query): Builder => auth()->user()?->role === 'instructor'
+                            ? $query->managedBy(auth()->user())
+                            : $query,
+                    )
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('title')->label('Título')->required()->default('Evaluación del tema'),
                 Textarea::make('instructions')->label('Instrucciones')->rows(3)->columnSpanFull(),
                 TextInput::make('passing_score')->label('Puntaje aprobatorio')->numeric()->minValue(1)->maxValue(100)->suffix('%')->required()->default(70),

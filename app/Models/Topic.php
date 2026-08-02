@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +65,21 @@ class Topic extends Model implements HasMedia
     public function latestRevealUpload(): HasOne
     {
         return $this->hasOne(RevealPresentation::class)->latestOfMany();
+    }
+
+    public function scopeManagedBy(Builder $query, User $instructor): Builder
+    {
+        return $query->where(function (Builder $query) use ($instructor): void {
+            $query
+                ->where('created_by', $instructor->id)
+                ->orWhereHas('courses.instructors', fn (Builder $instructors) => $instructors->whereKey($instructor->id));
+        });
+    }
+
+    public function isManagedBy(User $instructor): bool
+    {
+        return $this->created_by === $instructor->id
+            || $this->courses()->whereHas('instructors', fn (Builder $query) => $query->whereKey($instructor->id))->exists();
     }
 
     public function registerMediaCollections(): void
