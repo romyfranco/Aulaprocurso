@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Courses\RelationManagers;
 
+use App\Services\CourseTopicOrderService;
+use Filament\Actions\Action;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -19,6 +21,8 @@ class TopicsRelationManager extends RelationManager
 {
     protected static string $relationship = 'topics';
 
+    protected static ?string $title = 'Temas';
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -35,6 +39,14 @@ class TopicsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
+            ->description('Activa “Cambiar orden” y arrastra los temas para definir la secuencia del curso.')
+            ->reorderable('order')
+            ->authorizeReorder(fn (): bool => auth()->user()?->can('update', $this->getOwnerRecord()) ?? false)
+            ->reorderRecordsTriggerAction(
+                fn (Action $action, bool $isReordering): Action => $action
+                    ->button()
+                    ->label($isReordering ? 'Finalizar orden' : 'Cambiar orden'),
+            )
             ->columns([
                 TextColumn::make('title')
                     ->label('Tema')->icon('heroicon-o-document-text')
@@ -61,5 +73,16 @@ class TopicsRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public function reorderTable(array $order, int|string|null $draggedRecordKey = null): void
+    {
+        if (! $this->getTable()->isReorderable()) {
+            return;
+        }
+
+        $this->getTable()->callBeforeReordering($order);
+        app(CourseTopicOrderService::class)->reorder($this->getOwnerRecord(), $order);
+        $this->getTable()->callAfterReordering($order);
     }
 }
