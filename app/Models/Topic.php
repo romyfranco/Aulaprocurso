@@ -70,9 +70,30 @@ class Topic extends Model implements HasMedia
     {
         $this->addMediaCollection('images')->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
         $this->addMediaCollection('videos')->acceptsMimeTypes(['video/mp4', 'video/webm']);
-        $this->addMediaCollection('documents')->acceptsFile(fn (File $file) => in_array($file->mimeType, [
-            'application/pdf', 'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        ], true));
+        $this->addMediaCollection('documents')->acceptsFile(fn (File $file) => $this->acceptsDocument($file));
+    }
+
+    private function acceptsDocument(File $file): bool
+    {
+        $extension = strtolower(pathinfo($file->name, PATHINFO_EXTENSION));
+        $mimeType = strtolower(trim($file->mimeType));
+
+        return match ($extension) {
+            'pdf' => $mimeType === 'application/pdf',
+            'ppt' => in_array($mimeType, [
+                'application/vnd.ms-powerpoint',
+                'application/mspowerpoint',
+                'application/powerpoint',
+                'application/x-mspowerpoint',
+                'application/octet-stream',
+            ], true),
+            'pptx' => in_array($mimeType, [
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/zip',
+                'application/x-zip-compressed',
+                'application/octet-stream',
+            ], true),
+            default => false,
+        };
     }
 }

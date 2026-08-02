@@ -152,6 +152,12 @@ class EducationBusinessFlowTest extends TestCase
 
         $this->assertTrue($acceptsFile(new File('presentacion.ppt', 1024, 'application/vnd.ms-powerpoint')));
         $this->assertTrue($acceptsFile(new File('presentacion.pptx', 1024, 'application/vnd.openxmlformats-officedocument.presentationml.presentation')));
+        $this->assertTrue($acceptsFile(new File('presentacion.ppt', 1024, 'application/octet-stream')));
+        $this->assertTrue($acceptsFile(new File('presentacion.pptx', 1024, 'application/octet-stream')));
+        $this->assertTrue($acceptsFile(new File('presentacion.pptx', 1024, 'application/zip')));
+        $this->assertFalse($acceptsFile(new File('presentacion.pdf', 1024, 'application/octet-stream')));
+        $this->assertFalse($acceptsFile(new File('presentacion.exe', 1024, 'application/octet-stream')));
+        $this->assertFalse($acceptsFile(new File('presentacion.pptx', 1024, 'image/jpeg')));
     }
 
     public function test_each_open_answer_is_graded_individually(): void
