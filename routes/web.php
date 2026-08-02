@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PreviewQuizController;
 use App\Http\Controllers\ServePublicAssetController;
 use App\Http\Controllers\ServeRevealAssetController;
+use App\Http\Controllers\StudentQuizController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -52,6 +53,15 @@ Route::middleware('auth')->get('/certificates/{certificate}/download', DownloadC
 
 Route::middleware('auth')->get('/evaluations/{quiz}/preview', PreviewQuizController::class)
     ->name('quizzes.preview');
+
+Route::middleware('auth')->group(function (): void {
+    Route::get('/student/evaluations/{quiz}/take', [StudentQuizController::class, 'show'])
+        ->name('student.quizzes.take');
+    Route::post('/student/evaluations/{quiz}/take', [StudentQuizController::class, 'submit'])
+        ->name('student.quizzes.submit');
+    Route::get('/student/evaluations/attempts/{attempt}/result', [StudentQuizController::class, 'result'])
+        ->name('student.quizzes.result');
+});
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 
