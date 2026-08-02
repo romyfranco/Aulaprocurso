@@ -7,6 +7,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class QuizForm
@@ -24,14 +26,38 @@ class QuizForm
             Section::make('Preguntas')->icon('heroicon-o-question-mark-circle')->description('Crea preguntas al estilo de un formulario; las respuestas abiertas quedarán por calificar.')->schema([
                 Repeater::make('questions')->label('')->relationship()->orderColumn('order')->schema([
                     Textarea::make('question_text')->label('Pregunta')->required()->columnSpanFull(),
-                    Select::make('question_type')->label('Tipo')->options(['multiple_choice' => 'Opción múltiple', 'true_false' => 'Verdadero / falso', 'short_answer' => 'Respuesta corta', 'essay' => 'Ensayo'])->required()->native(false),
+                    Select::make('question_type')
+                        ->label('Tipo')
+                        ->options([
+                            'multiple_choice' => 'Opción múltiple',
+                            'true_false' => 'Verdadero / falso',
+                            'short_answer' => 'Respuesta corta',
+                            'essay' => 'Ensayo',
+                        ])
+                        ->required()
+                        ->native(false)
+                        ->live()
+                        ->afterStateUpdated(function (Set $set, ?string $state): void {
+                            if (! self::usesAnswerOptions($state)) {
+                                $set('options', []);
+                            }
+                        }),
                     TextInput::make('points')->label('Puntos')->numeric()->minValue(1)->required()->default(10),
                     Repeater::make('options')->label('Opciones de respuesta')->relationship()->schema([
                         TextInput::make('option_text')->label('Opción')->required(),
                         Select::make('is_correct')->label('Respuesta')->options([0 => 'Incorrecta', 1 => 'Correcta'])->required()->native(false),
-                    ])->columns(2)->columnSpanFull()->defaultItems(2),
+                    ])
+                        ->columns(2)
+                        ->columnSpanFull()
+                        ->defaultItems(2)
+                        ->visible(fn (Get $get): bool => self::usesAnswerOptions($get('question_type'))),
                 ])->columns(2)->collapsible()->itemLabel(fn (array $state) => $state['question_text'] ?? 'Nueva pregunta')->addActionLabel('Agregar pregunta')->columnSpanFull(),
             ]),
         ]);
+    }
+
+    private static function usesAnswerOptions(?string $questionType): bool
+    {
+        return in_array($questionType, ['multiple_choice', 'true_false'], true);
     }
 }
