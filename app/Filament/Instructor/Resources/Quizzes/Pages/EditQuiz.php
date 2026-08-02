@@ -2,6 +2,7 @@
 
 namespace App\Filament\Instructor\Resources\Quizzes\Pages;
 
+use App\Filament\Actions\PreviewQuizAction;
 use App\Filament\Instructor\Resources\Quizzes\QuizResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -14,6 +15,7 @@ class EditQuiz extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            PreviewQuizAction::make(),
             ViewAction::make(),
             DeleteAction::make(),
         ];

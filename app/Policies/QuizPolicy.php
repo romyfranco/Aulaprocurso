@@ -14,7 +14,9 @@ class QuizPolicy
 
     public function view(User $user, Quiz $quiz): bool
     {
-        return $user->role === 'admin' || $quiz->topic->courses()->whereHas('instructors', fn ($q) => $q->whereKey($user->id))->exists() || $quiz->topic->courses()->whereHas('enrollments', fn ($q) => $q->where('student_id', $user->id))->exists();
+        return $user->role === 'admin'
+            || ($user->role === 'instructor' && $quiz->topic->isManagedBy($user))
+            || $quiz->topic->courses()->whereHas('enrollments', fn ($q) => $q->where('student_id', $user->id))->exists();
     }
 
     public function create(User $user): bool
@@ -24,7 +26,8 @@ class QuizPolicy
 
     public function update(User $user, Quiz $quiz): bool
     {
-        return $user->role === 'admin' || ($user->role === 'instructor' && $quiz->topic->courses()->whereHas('instructors', fn ($q) => $q->whereKey($user->id))->exists());
+        return $user->role === 'admin'
+            || ($user->role === 'instructor' && $quiz->topic->isManagedBy($user));
     }
 
     public function delete(User $user, Quiz $quiz): bool
