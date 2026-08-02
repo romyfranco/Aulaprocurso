@@ -4,14 +4,10 @@ namespace App\Filament\Student\Resources\Quizzes\Tables;
 
 use App\Models\Enrollment;
 use App\Models\Quiz;
-use App\Services\AttemptService;
+use App\Services\StudentQuizAccessService;
 use App\Services\TopicAccessService;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,10 +16,10 @@ class QuizzesTable
 {
     private static function enrollment($quiz): ?Enrollment
     {
-        return Enrollment::where('student_id', auth()->id())
-            ->whereHas('course.topics', fn ($query) => $query->whereKey($quiz->topic_id))
-            ->with('course.topics')
-            ->first();
+        $access = app(StudentQuizAccessService::class);
+
+        return $access->unlockedEnrollment($quiz, auth()->user())
+            ?? $access->enrollments($quiz, auth()->user())->first();
     }
 
     private static function unlocked($quiz): bool
@@ -60,7 +56,7 @@ class QuizzesTable
                 'Sin intentos' => 1,
                 default => 2,
             }
-            : self::attemptsLeft($quiz);
+        : self::attemptsLeft($quiz);
 
         $ordered = $direction === 'desc'
             ? $quizzes->sortByDesc($value)
@@ -84,32 +80,8 @@ class QuizzesTable
             ->icon('heroicon-o-play')
             ->color('primary')
             ->disabled(fn ($record) => ! self::unlocked($record) || $record->availableAttemptsFor(auth()->user()) < 1)
-            ->schema(fn ($record) => $record->questions->map(function ($question) {
-                $name = 'responses.'.$question->id;
-
-                if (in_array($question->question_type, ['multiple_choice', 'true_false'], true)) {
-                    return Radio::make($name)
-                        ->label($question->question_text)
-                        ->options($question->options->pluck('option_text', 'id'))
-                        ->required();
-                }
-
-                if ($question->question_type === 'essay') {
-                    return Textarea::make($name)->label($question->question_text)->rows(6)->required();
-                }
-
-                return TextInput::make($name)->label($question->question_text)->required();
-            })->all())
-            ->action(function ($record, array $data) {
-                $attempt = app(AttemptService::class)->start($record, auth()->user(), self::enrollment($record));
-                $attempt = app(AttemptService::class)->submit($attempt, $data['responses'] ?? []);
-
-                Notification::make()
-                    ->title($attempt->status === 'graded' ? 'Evaluación calificada' : 'Evaluación enviada')
-                    ->body($attempt->status === 'graded' ? 'Tu puntaje es '.$attempt->score.'%.' : 'Tu instructor revisará las respuestas abiertas.')
-                    ->success()
-                    ->send();
-            });
+            ->url(fn (Quiz $record): string => route('student.quizzes.take', $record))
+            ->openUrlInNewTab();
 
         if ($onlyWhenAvailable) {
             $action->visible(fn ($record) => self::unlocked($record) && $record->availableAttemptsFor(auth()->user()) > 0);
