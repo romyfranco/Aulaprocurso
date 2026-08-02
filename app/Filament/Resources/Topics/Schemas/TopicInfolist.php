@@ -14,6 +14,7 @@ class TopicInfolist
         return $schema->components([
             Section::make('Información general')->icon('heroicon-o-academic-cap')->schema([
                 TextEntry::make('title')->label('Tema')->size('lg')->weight('bold'),
+                TextEntry::make('courses.title')->label('Curso')->placeholder('Sin curso')->badge()->color('info'),
                 TextEntry::make('quiz.title')->label('Evaluación')->placeholder('Sin evaluación')->badge()->color('warning'),
                 TextEntry::make('description')->label('Resumen')->columnSpanFull(),
             ])->columns(2),
