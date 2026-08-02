@@ -18,6 +18,11 @@ class TopicsTable
                 TextColumn::make('title')
                     ->label('Tema')->icon('heroicon-o-document-text')
                     ->searchable(),
+                TextColumn::make('courses.title')
+                    ->label('Curso')
+                    ->placeholder('Sin curso')
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('creator.name')->label('Autor')
                     ->sortable(),
                 TextColumn::make('quiz.title')->label('Evaluación')->placeholder('Pendiente')->badge()->color('warning'),

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Topics\Schemas;
 
+use App\Models\Course;
 use App\Models\Topic;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
@@ -20,6 +21,36 @@ class TopicForm
         return $schema->components([
             Section::make('Información general')->icon('heroicon-o-document-text')->schema([
                 TextInput::make('title')->label('Título')->required(),
+                Select::make('course_id')
+                    ->label('Curso')
+                    ->options(function (): array {
+                        $query = Course::query()->orderBy('title');
+
+                        if (auth()->user()?->role === 'instructor') {
+                            $query
+                                ->where('status', '!=', 'archived')
+                                ->whereHas('instructors', fn ($instructors) => $instructors->whereKey(auth()->id()));
+                        }
+
+                        return $query->get()->mapWithKeys(fn (Course $course): array => [
+                            $course->id => $course->title.' · '.match ($course->status) {
+                                'published' => 'Publicado',
+                                'draft' => 'Borrador',
+                                default => 'Archivado',
+                            },
+                        ])->all();
+                    })
+                    ->afterStateHydrated(function (Select $component, ?Topic $record): void {
+                        if ($record) {
+                            $component->state($record->courses()->value('courses.id'));
+                        }
+                    })
+                    ->helperText('El tema se añadirá automáticamente al final del curso seleccionado.')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->required()
+                    ->dehydrated(false),
                 Textarea::make('description')->label('Resumen')->rows(3)->required()->columnSpanFull(),
                 Select::make('created_by')->label('Autor')->relationship('creator', 'name')->default(fn () => auth()->id())->required()->searchable(),
             ])->columns(2),
