@@ -2,33 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Enrollment;
 use App\Models\Topic;
 use App\Services\RevealAccessService;
-use App\Services\TopicAccessService;
+use App\Services\TopicPresentationAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class LaunchRevealPresentationController extends Controller
 {
-    public function __invoke(Request $request, Topic $topic, RevealAccessService $access, TopicAccessService $topicAccess): RedirectResponse
+    public function __invoke(Request $request, Topic $topic, RevealAccessService $access, TopicPresentationAccessService $topicPresentationAccess): RedirectResponse
     {
-        Gate::authorize('view', $topic);
-
         $user = $request->user();
-
-        if ($user->role === 'student') {
-            $canOpen = Enrollment::query()
-                ->where('student_id', $user->id)
-                ->whereIn('status', ['active', 'completed'])
-                ->whereHas('course.topics', fn ($query) => $query->whereKey($topic->id))
-                ->with('course')
-                ->get()
-                ->contains(fn (Enrollment $enrollment) => $topicAccess->isUnlocked($enrollment, $topic));
-
-            abort_unless($canOpen, 403, 'Este tema todavía está bloqueado.');
-        }
+        $topicPresentationAccess->authorize($user, $topic);
 
         $presentation = $topic->revealPresentation;
         abort_unless($presentation?->isReady(), 404, 'Este tema no tiene una presentación disponible.');

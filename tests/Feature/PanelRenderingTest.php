@@ -83,6 +83,20 @@ class PanelRenderingTest extends TestCase
         $this->actingAs($instructor)->get('/student')->assertForbidden();
     }
 
+    public function test_every_panel_displays_the_igmar_franco_footer(): void
+    {
+        foreach (['admin', 'instructor', 'student'] as $role) {
+            $user = User::factory()->create(['role' => $role]);
+
+            $this->actingAs($user)
+                ->get('/'.$role)
+                ->assertOk()
+                ->assertSee('Hecho con')
+                ->assertSee('Igmar Franco')
+                ->assertSee('voranapro-panel-footer', false);
+        }
+    }
+
     public function test_student_sees_pending_evaluation_navigation(): void
     {
         Storage::fake('public');
@@ -118,9 +132,12 @@ class PanelRenderingTest extends TestCase
         $instructor = User::where('role', 'instructor')->firstOrFail();
         $student = User::where('role', 'student')->firstOrFail();
         $certificate = Certificate::firstOrFail();
-        foreach (['/admin/courses/1', '/admin/topics/1', '/admin/quizzes/1', '/admin/enrollments/1', '/admin/certificates/'.$certificate->certificate_code] as $url) {
+        foreach (['/admin/courses/1', '/admin/quizzes/1', '/admin/enrollments/1', '/admin/certificates/'.$certificate->certificate_code] as $url) {
             $this->actingAs($admin)->get($url)->assertOk();
         }
+        $this->actingAs($admin)->get('/admin/topics/1')
+            ->assertOk()
+            ->assertDontSee('Metadatos');
         $this->actingAs($instructor)->get('/instructor/courses/1')->assertOk();
         $this->actingAs($instructor)->get('/instructor/quizzes/1')->assertOk();
         $this->actingAs($instructor)->get('/instructor/quiz-attempts/2')

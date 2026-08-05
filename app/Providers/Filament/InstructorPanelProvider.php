@@ -10,7 +10,9 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -27,6 +29,7 @@ class InstructorPanelProvider extends PanelProvider
             ->path('instructor')
             ->viteTheme('resources/css/filament/instructor/theme.css')
             ->brandName('VoranaPro · Instructor')
+            ->renderHook(PanelsRenderHook::FOOTER, fn (): View => view('filament.components.panel-footer'))
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->colors(['primary' => Color::hex('#0D9488')])

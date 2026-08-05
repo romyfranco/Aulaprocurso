@@ -7,7 +7,9 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PreviewQuizController;
 use App\Http\Controllers\ServePublicAssetController;
 use App\Http\Controllers\ServeRevealAssetController;
+use App\Http\Controllers\ServeTopicPdfPresentationController;
 use App\Http\Controllers\StudentQuizController;
+use App\Http\Controllers\ViewTopicPdfPresentationController;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -47,6 +49,13 @@ Route::get('/storage/{path}', ServePublicAssetController::class)
 
 Route::middleware('auth')->get('/topics/{topic}/presentation', LaunchRevealPresentationController::class)
     ->name('topics.presentation.launch');
+
+Route::middleware('auth')->group(function (): void {
+    Route::get('/topics/{topic}/pdf-presentation', ViewTopicPdfPresentationController::class)
+        ->name('topics.pdf-presentation.view');
+    Route::get('/topics/{topic}/pdf-presentation/file', ServeTopicPdfPresentationController::class)
+        ->name('topics.pdf-presentation.file');
+});
 
 Route::middleware('auth')->get('/certificates/{certificate}/download', DownloadCertificatePdfController::class)
     ->name('certificates.download');
