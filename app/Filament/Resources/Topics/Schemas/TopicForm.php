@@ -69,7 +69,7 @@ class TopicForm
                     SpatieMediaLibraryFileUpload::make('presentation_pdf')
                         ->label('Presentación PDF')
                         ->collection('presentation_pdf')
-                        ->disk('local')
+                        ->disk(config('presentations.disk'))
                         ->visibility('private')
                         ->acceptedFileTypes(['application/pdf'])
                         ->maxSize((int) ceil(config('presentations.pdf_max_bytes') / 1024))

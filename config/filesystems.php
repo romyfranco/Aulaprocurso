@@ -46,6 +46,14 @@ return [
             'report' => false,
         ],
 
+        'presentations' => [
+            'driver' => 'local',
+            'root' => env('PRESENTATION_STORAGE_ROOT', storage_path('app/private/presentations')),
+            'serve' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => env('PUBLIC_STORAGE_ROOT', storage_path('app/public')),

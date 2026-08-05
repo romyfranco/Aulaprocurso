@@ -88,7 +88,7 @@ class Topic extends Model implements HasMedia
         $this->addMediaCollection('videos')->acceptsMimeTypes(['video/mp4', 'video/webm']);
         $this->addMediaCollection('documents')->acceptsFile(fn (File $file) => $this->acceptsDocument($file));
         $this->addMediaCollection('presentation_pdf')
-            ->useDisk('local')
+            ->useDisk(config('presentations.disk'))
             ->acceptsMimeTypes(['application/pdf'])
             ->singleFile();
     }
