@@ -21,7 +21,7 @@ class TopicPdfPresentationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('local');
+        Storage::fake(config('presentations.disk'));
     }
 
     public function test_livewire_temporary_upload_supports_the_pdf_limit(): void
@@ -36,7 +36,7 @@ class TopicPdfPresentationTest extends TestCase
         $topic = $this->scenario()['topics'][0];
         $collection = $topic->getMediaCollection('presentation_pdf');
 
-        $this->assertSame('local', $collection->diskName);
+        $this->assertSame(config('presentations.disk'), $collection->diskName);
         $this->assertTrue($collection->singleFile);
         $this->assertSame(['application/pdf'], $collection->acceptsMimeTypes);
         $this->assertSame(100 * 1024 * 1024, config('presentations.pdf_max_bytes'));
@@ -44,7 +44,7 @@ class TopicPdfPresentationTest extends TestCase
         $this->expectException(FileUnacceptableForCollection::class);
 
         $topic->addMedia(UploadedFile::fake()->create('presentacion.txt', 10, 'text/plain'))
-            ->toMediaCollection('presentation_pdf', 'local');
+            ->toMediaCollection('presentation_pdf', config('presentations.disk'));
     }
 
     public function test_authorized_student_can_open_the_viewer_and_stream_the_pdf(): void
@@ -147,19 +147,19 @@ class TopicPdfPresentationTest extends TestCase
         $topic = $this->scenario()['topics'][0];
         $first = $this->addPdf($topic, 'primera.pdf');
         $firstPath = $first->getPathRelativeToRoot();
-        Storage::disk('local')->assertExists($firstPath);
+        Storage::disk(config('presentations.disk'))->assertExists($firstPath);
 
         $second = $this->addPdf($topic, 'segunda.pdf');
         $secondPath = $second->getPathRelativeToRoot();
 
         $this->assertDatabaseMissing('media', ['id' => $first->id]);
-        Storage::disk('local')->assertMissing($firstPath);
-        Storage::disk('local')->assertExists($secondPath);
+        Storage::disk(config('presentations.disk'))->assertMissing($firstPath);
+        Storage::disk(config('presentations.disk'))->assertExists($secondPath);
 
         $topic->delete();
 
         $this->assertDatabaseMissing('media', ['id' => $second->id]);
-        Storage::disk('local')->assertMissing($secondPath);
+        Storage::disk(config('presentations.disk'))->assertMissing($secondPath);
     }
 
     public function test_opening_the_viewer_does_not_change_student_progress(): void
@@ -222,7 +222,7 @@ class TopicPdfPresentationTest extends TestCase
     private function addPdf(Topic $topic, string $name = 'presentacion.pdf')
     {
         return $topic->addMedia(UploadedFile::fake()->createWithContent($name, $this->pdfContents()))
-            ->toMediaCollection('presentation_pdf', 'local');
+            ->toMediaCollection('presentation_pdf', config('presentations.disk'));
     }
 
     private function pdfContents(): string
