@@ -21,6 +21,8 @@ class PdfPresentationViewer {
         this.nextButton = root.querySelector('[data-pdf-action="next"]');
         this.fullscreenLabel = root.querySelector('[data-fullscreen-label]');
         this.pdf = null;
+        this.loadingTask = null;
+        this.loadSequence = 0;
         this.pageNumber = 1;
         this.zoom = 1;
         this.renderTask = null;
@@ -52,7 +54,16 @@ class PdfPresentationViewer {
     }
 
     async load() {
+        const loadSequence = ++this.loadSequence;
+
+        if (this.loadingTask) {
+            await this.loadingTask.destroy().catch(() => {});
+        } else if (this.pdf) {
+            await this.pdf.destroy().catch(() => {});
+        }
+
         this.pdf = null;
+        this.loadingTask = null;
         this.pageNumber = 1;
         this.zoom = 1;
         this.canvas.classList.remove('is-ready');
@@ -62,7 +73,12 @@ class PdfPresentationViewer {
 
         try {
             const loadingTask = getDocument({ url: this.url, withCredentials: true });
+            let downloadComplete = false;
+
+            this.loadingTask = loadingTask;
             loadingTask.onProgress = ({ loaded, total }) => {
+                if (downloadComplete || loadSequence !== this.loadSequence) return;
+
                 if (!total) {
                     this.showLoading('Descargando la presentación…', 35);
                     return;
@@ -72,7 +88,15 @@ class PdfPresentationViewer {
                 this.showLoading(`Descargando la presentación… ${percent}%`, percent);
             };
 
-            this.pdf = await loadingTask.promise;
+            const pdf = await loadingTask.promise;
+            downloadComplete = true;
+
+            if (loadSequence !== this.loadSequence) {
+                await pdf.destroy();
+                return;
+            }
+
+            this.pdf = pdf;
             this.totalPagesLabel.textContent = this.pdf.numPages;
             this.showLoading('Renderizando la primera página…', 88);
             await this.renderPage();
