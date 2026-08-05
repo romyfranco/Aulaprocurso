@@ -1,6 +1,10 @@
 {
+  "node_modules/pdfjs-dist/build/pdf.worker.min.mjs": {
+    "file": "assets/pdf.worker.min-CHFwMXne.mjs",
+    "src": "node_modules/pdfjs-dist/build/pdf.worker.min.mjs"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-TW3hX8ej.css",
+    "file": "assets/app-CSruH-rb.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -24,5 +28,14 @@
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
+  },
+  "resources/js/pdf-presentation-viewer.js": {
+    "file": "assets/pdf-presentation-viewer-BrrwdHvg.js",
+    "name": "pdf-presentation-viewer",
+    "src": "resources/js/pdf-presentation-viewer.js",
+    "isEntry": true,
+    "assets": [
+      "assets/pdf.worker.min-CHFwMXne.mjs"
+    ]
   }
 }

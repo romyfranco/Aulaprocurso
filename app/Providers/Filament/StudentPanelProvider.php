@@ -10,7 +10,9 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -27,6 +29,7 @@ class StudentPanelProvider extends PanelProvider
             ->path('student')
             ->viteTheme('resources/css/filament/student/theme.css')
             ->brandName('VoranaPro · Estudiante')
+            ->renderHook(PanelsRenderHook::FOOTER, fn (): View => view('filament.components.panel-footer'))
             ->sidebarCollapsibleOnDesktop()
             ->databaseNotifications()
             ->colors([

@@ -62,6 +62,22 @@ class TopicForm
                 SpatieMediaLibraryFileUpload::make('videos')->label('Videos')->collection('videos')->acceptedFileTypes(['video/mp4', 'video/webm'])->multiple(),
                 SpatieMediaLibraryFileUpload::make('documents')->label('Documentos y presentaciones')->collection('documents')->acceptedFileTypes(['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'])->multiple(),
             ])->columns(3),
+            Section::make('Presentación PDF')
+                ->icon('heroicon-o-document-chart-bar')
+                ->description('Exporta el PowerPoint como PDF. Solo habrá una presentación activa por tema.')
+                ->schema([
+                    SpatieMediaLibraryFileUpload::make('presentation_pdf')
+                        ->label('Presentación PDF')
+                        ->collection('presentation_pdf')
+                        ->disk('local')
+                        ->visibility('private')
+                        ->acceptedFileTypes(['application/pdf'])
+                        ->maxSize((int) ceil(config('presentations.pdf_max_bytes') / 1024))
+                        ->previewable(false)
+                        ->openable(false)
+                        ->downloadable(false)
+                        ->helperText('Máximo 100 MB. Al cargar otro PDF se reemplazará la presentación anterior.'),
+                ]),
             Section::make('Presentación Reveal.js')
                 ->icon('heroicon-o-presentation-chart-bar')
                 ->description('Sube un ZIP con un único index.html. Puede estar en la raíz o dentro de una sola carpeta superior.')

@@ -27,7 +27,14 @@ class TopicInfolist
                     ->view('filament.infolists.topic-media')
                     ->viewData(fn ($record): array => ['topic' => $record])
                     ->columnSpanFull(),
-            ])->visible(fn ($record): bool => $record->media()->exists()),
+            ])->visible(fn ($record): bool => $record->media()->whereIn('collection_name', ['images', 'videos', 'documents'])->exists()),
+            Section::make('Presentación PDF')->icon('heroicon-o-document-chart-bar')->schema([
+                ViewEntry::make('pdf_presentation')
+                    ->label('')
+                    ->view('filament.infolists.pdf-presentation')
+                    ->viewData(fn ($record): array => ['topic' => $record])
+                    ->columnSpanFull(),
+            ])->visible(fn ($record): bool => $record->hasMedia('presentation_pdf')),
             Section::make('Presentación interactiva')->icon('heroicon-o-presentation-chart-bar')->schema([
                 ViewEntry::make('reveal_presentation')
                     ->label('')
@@ -35,11 +42,6 @@ class TopicInfolist
                     ->viewData(fn ($record): array => ['topic' => $record])
                     ->columnSpanFull(),
             ]),
-            Section::make('Metadatos')->icon('heroicon-o-information-circle')->schema([
-                TextEntry::make('creator.name')->label('Autor'),
-                TextEntry::make('created_at')->label('Creado')->dateTime('d M Y, H:i'),
-                TextEntry::make('updated_at')->label('Actualizado')->dateTime('d M Y, H:i'),
-            ])->columns(3)->visible(fn (): bool => auth()->user()?->role === 'admin'),
         ]);
     }
 }
