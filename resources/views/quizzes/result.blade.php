@@ -51,7 +51,12 @@
                     </div>
                     <p class="result-message">
                         @if ($attempt->status === 'graded')
-                            {{ (float) $attempt->score >= $attempt->quiz->passing_score ? '¡Buen trabajo! Si existe un tema siguiente, ya quedó desbloqueado.' : 'Puedes revisar el contenido y volver a intentarlo si todavía tienes intentos disponibles.' }}
+                            @if ((float) $attempt->score >= $attempt->quiz->passing_score)
+                                ¡Buen trabajo! Superaste el {{ $attempt->quiz->passing_score }}% requerido. Si existe un tema siguiente, ya quedó desbloqueado.
+                            @else
+                                Obtuviste {{ rtrim(rtrim(number_format((float) $attempt->score, 2), '0'), '.') }}%. Necesitas {{ $attempt->quiz->passing_score }}% para aprobar.
+                                {{ $attemptsLeft === 1 ? 'Te queda 1 intento.' : "Te quedan {$attemptsLeft} intentos." }}
+                            @endif
                         @else
                             Tu instructor revisará las respuestas abiertas. El resultado aparecerá cuando termine la calificación.
                         @endif

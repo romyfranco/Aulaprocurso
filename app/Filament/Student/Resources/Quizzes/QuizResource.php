@@ -55,7 +55,11 @@ class QuizResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->whereHas('topic.courses.enrollments', fn (Builder $query) => $query->where('student_id', auth()->id()));
+        return parent::getEloquentQuery()
+            ->whereHas('topic.courses.enrollments', fn (Builder $query) => $query->where('student_id', auth()->id()))
+            ->with(['attempts' => fn ($query) => $query
+                ->where('student_id', auth()->id())
+                ->orderByDesc('attempt_number')]);
     }
 
     public static function canCreate(): bool
