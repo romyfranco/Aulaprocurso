@@ -57,8 +57,9 @@ class StudentQuizController extends Controller
         abort_unless($attempt->student_id === $student->id, 403);
 
         $attempt->load(['quiz.topic', 'answers.question', 'answers.selectedOption']);
+        $attemptsLeft = $attempt->quiz->availableAttemptsFor($student);
 
-        return view('quizzes.result', compact('attempt'));
+        return view('quizzes.result', compact('attempt', 'attemptsLeft'));
     }
 
     private function student(Request $request): User

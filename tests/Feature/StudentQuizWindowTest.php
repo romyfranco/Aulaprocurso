@@ -6,6 +6,7 @@ use App\Filament\Student\Resources\Quizzes\Tables\QuizzesTable;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
 use App\Models\QuizQuestionOption;
 use App\Models\Topic;
@@ -93,6 +94,45 @@ class StudentQuizWindowTest extends TestCase
             ->get(route('student.quizzes.result', $attempt))
             ->assertOk()
             ->assertSeeText('Pendiente de revisión');
+    }
+
+    public function test_student_sees_failed_or_approved_status_after_the_first_attempt(): void
+    {
+        $scenario = $this->scenario();
+        $quiz = $this->createQuiz($scenario['topic']);
+        $attempt = QuizAttempt::create([
+            'quiz_id' => $quiz->id,
+            'student_id' => $scenario['student']->id,
+            'enrollment_id' => $scenario['enrollment']->id,
+            'attempt_number' => 1,
+            'started_at' => now(),
+            'submitted_at' => now(),
+            'graded_at' => now(),
+            'status' => 'graded',
+            'score' => 60,
+        ]);
+
+        $this->actingAs($scenario['student'])
+            ->get('/student/quizzes')
+            ->assertOk()
+            ->assertSeeText('No aprobada')
+            ->assertSeeText('Último puntaje')
+            ->assertSeeText('60%');
+
+        $this->actingAs($scenario['student'])
+            ->get(route('student.quizzes.result', $attempt))
+            ->assertOk()
+            ->assertSeeText('No aprobada')
+            ->assertSeeText('Necesitas 70% para aprobar.')
+            ->assertSeeText('Te queda 1 intento.');
+
+        $attempt->update(['score' => 100]);
+
+        $this->actingAs($scenario['student'])
+            ->get('/student/quizzes')
+            ->assertOk()
+            ->assertSeeText('Aprobada')
+            ->assertSeeText('100%');
     }
 
     public function test_student_cannot_open_a_locked_evaluation_or_submit_an_option_from_another_question(): void

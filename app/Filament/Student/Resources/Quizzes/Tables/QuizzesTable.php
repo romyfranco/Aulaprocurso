@@ -4,6 +4,7 @@ namespace App\Filament\Student\Resources\Quizzes\Tables;
 
 use App\Models\Enrollment;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Services\StudentQuizAccessService;
 use App\Services\TopicAccessService;
 use Filament\Actions\Action;
@@ -11,6 +12,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class QuizzesTable
 {
@@ -43,6 +45,74 @@ class QuizzesTable
         return $quiz->availableAttemptsFor(auth()->user());
     }
 
+    private static function studentAttempts(Quiz $quiz): Collection
+    {
+        if ($quiz->relationLoaded('attempts')) {
+            return $quiz->attempts
+                ->where('student_id', auth()->id())
+                ->sortByDesc('attempt_number')
+                ->values();
+        }
+
+        return $quiz->attempts()
+            ->where('student_id', auth()->id())
+            ->orderByDesc('attempt_number')
+            ->get();
+    }
+
+    private static function latestAttempt(Quiz $quiz): ?QuizAttempt
+    {
+        return self::studentAttempts($quiz)->first();
+    }
+
+    private static function status(Quiz $quiz): string
+    {
+        $attempts = self::studentAttempts($quiz);
+
+        if ($attempts->contains(fn (QuizAttempt $attempt): bool =>
+            $attempt->status === 'graded'
+            && $attempt->score !== null
+            && (float) $attempt->score >= $quiz->passing_score
+        )) {
+            return 'Aprobada';
+        }
+
+        $latest = $attempts->first();
+
+        if ($latest?->status === 'pending_grading') {
+            return 'Pendiente de revisión';
+        }
+
+        if ($latest?->status === 'in_progress') {
+            return 'En curso';
+        }
+
+        if ($attempts->contains(fn (QuizAttempt $attempt): bool => $attempt->status === 'graded')) {
+            return 'No aprobada';
+        }
+
+        return self::availability($quiz);
+    }
+
+    private static function latestScore(Quiz $quiz): string
+    {
+        $latest = self::latestAttempt($quiz);
+
+        if (! $latest) {
+            return 'Sin presentar';
+        }
+
+        if ($latest->status === 'pending_grading') {
+            return 'Pendiente';
+        }
+
+        if ($latest->status !== 'graded' || $latest->score === null) {
+            return 'En curso';
+        }
+
+        return rtrim(rtrim(number_format((float) $latest->score, 2), '0'), '.').'%';
+    }
+
     private static function sortByComputedValue(Builder $query, string $direction, string $column): Builder
     {
         $quizzes = Quiz::query()
@@ -51,10 +121,13 @@ class QuizzesTable
             ->get();
 
         $value = fn (Quiz $quiz): int => $column === 'availability'
-            ? match (self::availability($quiz)) {
-                'Disponible' => 0,
-                'Sin intentos' => 1,
-                default => 2,
+            ? match (self::status($quiz)) {
+                'No aprobada' => 0,
+                'Pendiente de revisión' => 1,
+                'Disponible' => 2,
+                'Aprobada' => 3,
+                'Sin intentos' => 4,
+                default => 5,
             }
         : self::attemptsLeft($quiz);
 
@@ -97,14 +170,27 @@ class QuizzesTable
             TextColumn::make('title')->label('Evaluación')->searchable(),
             TextColumn::make('availability')
                 ->label('Estado')
-                ->state(fn (Quiz $record): string => self::availability($record))
+                ->state(fn (Quiz $record): string => self::status($record))
                 ->badge()
                 ->color(fn ($state) => match ($state) {
-                    'Disponible' => 'success',
-                    'Sin intentos' => 'danger',
+                    'Aprobada' => 'success',
+                    'No aprobada', 'Sin intentos' => 'danger',
+                    'Pendiente de revisión' => 'warning',
+                    'Disponible' => 'primary',
+                    'En curso' => 'info',
                     default => 'gray',
                 })
                 ->sortable(query: fn (Builder $query, string $direction): Builder => self::sortByComputedValue($query, $direction, 'availability')),
+            TextColumn::make('latest_score')
+                ->label('Último puntaje')
+                ->state(fn (Quiz $record): string => self::latestScore($record))
+                ->badge()
+                ->color(fn (Quiz $record): string => match (self::status($record)) {
+                    'Aprobada' => 'success',
+                    'No aprobada' => 'danger',
+                    'Pendiente de revisión' => 'warning',
+                    default => 'gray',
+                }),
             TextColumn::make('attempts_left')->label('Intentos disponibles')->state(fn (Quiz $record): int => self::attemptsLeft($record))->badge()->color('warning')->sortable(query: fn (Builder $query, string $direction): Builder => self::sortByComputedValue($query, $direction, 'attempts')),
             TextColumn::make('passing_score')->label('Aprobación')->suffix('%'),
         ])->recordActions([
